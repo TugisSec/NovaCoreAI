@@ -532,7 +532,7 @@ const OpenAIChatbot = () => {
         
         <div className="min-h-[120px]">
           {/* Input Area */}
-          <div className="sticky bottom-0 border-t border-border bg-card p-2 sm:p-4 h-32 z-10">
+          <div className="fixed bottom-0 left-0 right-0 border-t border-border bg-card p-2 sm:p-4 h-32 z-10">
             <div className="max-w-4xl mx-auto h-full flex flex-col justify-center">
               <div className="flex gap-3 items-end">
                 <input
