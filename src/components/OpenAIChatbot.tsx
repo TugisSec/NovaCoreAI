@@ -425,7 +425,7 @@ const OpenAIChatbot = () => {
                 </div>
                 <div>
                   <h1 className="text-xl font-semibold text-card-foreground">NovaCore</h1>
-                  <p className="text-sm text-muted-foreground">Powered by OpenAI GPT</p>
+                  <p className="text-xs text-muted-foreground">Powered by OpenAI GPT</p>
                 </div>
               </div>
               
