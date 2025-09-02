@@ -181,37 +181,44 @@ const OpenAIChatbot = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
-  // Enhanced auto-scroll for new messages
+  // Auto-scroll to bottom when new messages appear
   useEffect(() => {
-    const scrollToBottom = () => {
+    const scrollToEnd = () => {
       if (scrollAreaRef.current) {
         // For ScrollArea component
         const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
         if (scrollContainer) {
-          scrollContainer.scrollTop = scrollContainer.scrollHeight;
-          // Multiple attempts for reliability
+          // Force scroll to the very bottom
+          scrollContainer.scrollTop = scrollContainer.scrollHeight + 1000;
+          // Multiple attempts with increasing delays
           setTimeout(() => {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
-          }, 10);
+            scrollContainer.scrollTop = scrollContainer.scrollHeight + 1000;
+          }, 20);
           setTimeout(() => {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
-          }, 50);
+            scrollContainer.scrollTop = scrollContainer.scrollHeight + 1000;
+          }, 100);
+          setTimeout(() => {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight + 1000;
+          }, 200);
         } else {
           // For regular div fallback
-          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight + 1000;
           setTimeout(() => {
-            scrollAreaRef.current!.scrollTop = scrollAreaRef.current!.scrollHeight;
-          }, 10);
+            scrollAreaRef.current!.scrollTop = scrollAreaRef.current!.scrollHeight + 1000;
+          }, 20);
           setTimeout(() => {
-            scrollAreaRef.current!.scrollTop = scrollAreaRef.current!.scrollHeight;
-          }, 50);
+            scrollAreaRef.current!.scrollTop = scrollAreaRef.current!.scrollHeight + 1000;
+          }, 100);
+          setTimeout(() => {
+            scrollAreaRef.current!.scrollTop = scrollAreaRef.current!.scrollHeight + 1000;
+          }, 200);
         }
       }
     };
 
-    // Immediate scroll when new messages appear
-    scrollToBottom();
-  }, [messages.length, isLoading]); // Watch message count for new messages
+    // Immediate scroll to end when new messages appear
+    scrollToEnd();
+  }, [messages.length, isLoading]); // Watch message count and loading state
   const toggleTheme = () => {
     console.log('Toggle clicked! Current theme:', theme);
     const newTheme = theme === 'dark' ? 'light' : 'dark';
