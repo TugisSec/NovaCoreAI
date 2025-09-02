@@ -329,6 +329,12 @@ const OpenAIChatbot = () => {
                 Please set your OpenAI API key in settings to start chatting
               </p>
             </div>}
+          
+          <div className="mt-3 text-center">
+            <p className="text-xs text-muted-foreground">
+              Developed by Ninio • All rights reserved
+            </p>
+          </div>
         </div>
       </div>
     </div>;
