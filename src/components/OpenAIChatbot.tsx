@@ -406,7 +406,7 @@ const OpenAIChatbot = () => {
       <div className="flex-1 flex flex-col">
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
+          <header className="fixed top-0 left-0 right-0 border-b border-border bg-card px-4 py-3 flex items-center justify-between z-20">
             <div className="flex items-center gap-3">
               {sidebarCollapsed && (
                 <Button
