@@ -157,7 +157,34 @@ const OpenAIChatbot = () => {
                 Settings
               </Button>
             </DialogTrigger>
-            
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Settings</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="api-key">OpenAI API Key</Label>
+                  <Input
+                    id="api-key"
+                    type="password"
+                    placeholder="sk-..."
+                    value={tempApiKey}
+                    onChange={(e) => setTempApiKey(e.target.value)}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Your API key is stored locally and never sent to our servers.
+                  </p>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={saveApiKey}>
+                    Save API Key
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
           </Dialog>
         </div>
       </header>
