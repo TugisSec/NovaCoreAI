@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image } from 'lucide-react';
+import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X } from 'lucide-react';
 // Force refresh to clear ImageIcon reference
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
@@ -34,6 +34,7 @@ const OpenAIChatbot = () => {
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openai-api-key') || '');
   const [tempApiKey, setTempApiKey] = useState(apiKey);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -207,6 +208,11 @@ const OpenAIChatbot = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    setUploadedImage(e.target?.result as string);
+                  };
+                  reader.readAsDataURL(file);
                   toast.success(`Selected: ${file.name}`);
                 }
               }}
@@ -220,6 +226,26 @@ const OpenAIChatbot = () => {
               <Image className="h-6 w-6" />
             </Button>
             <div className="flex-1">
+              {uploadedImage && (
+                <div className="mb-3 p-3 bg-muted/50 rounded-lg border border-border">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-muted-foreground">Image attached</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setUploadedImage(null)}
+                      className="h-6 w-6 p-0 hover:bg-destructive/20"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  <img 
+                    src={uploadedImage} 
+                    alt="Uploaded preview" 
+                    className="max-w-full max-h-32 rounded-md object-contain"
+                  />
+                </div>
+              )}
               <Textarea ref={textareaRef} placeholder="Type your message here... (Enter to send, Shift+Enter for new line)" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[60px] max-h-[200px] resize-none" disabled={isLoading} />
             </div>
             <Button onClick={sendMessage} disabled={!input.trim() || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
