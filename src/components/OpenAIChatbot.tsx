@@ -420,7 +420,7 @@ const OpenAIChatbot = () => {
                     <MessageSquare className="h-5 w-5" />
                   </Button>
                 )}
-                <div className="p-2 bg-primary/10 rounded-full">
+                <div className="p-2 bg-primary/10 rounded-full hidden sm:block">
                   <Sparkles className="h-6 w-6 text-primary" />
                 </div>
                 <div>
