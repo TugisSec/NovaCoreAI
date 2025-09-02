@@ -181,6 +181,7 @@ const OpenAIChatbot = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
+  // Enhanced auto-scroll effect for messages
   useEffect(() => {
     const scrollToBottom = () => {
       if (scrollAreaRef.current) {
@@ -201,12 +202,17 @@ const OpenAIChatbot = () => {
       }
     };
 
-    // Immediate scroll for better UX
+    // Multiple scroll attempts to ensure it works
     scrollToBottom();
+    const timeoutId1 = setTimeout(scrollToBottom, 50);
+    const timeoutId2 = setTimeout(scrollToBottom, 150);
+    const timeoutId3 = setTimeout(scrollToBottom, 300);
     
-    // Additional scroll after animation completes
-    const timeoutId = setTimeout(scrollToBottom, 300);
-    return () => clearTimeout(timeoutId);
+    return () => {
+      clearTimeout(timeoutId1);
+      clearTimeout(timeoutId2);
+      clearTimeout(timeoutId3);
+    };
   }, [messages, isLoading]);
   const toggleTheme = () => {
     console.log('Toggle clicked! Current theme:', theme);
