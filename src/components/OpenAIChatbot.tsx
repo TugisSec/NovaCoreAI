@@ -178,7 +178,6 @@ const OpenAIChatbot = () => {
               </Card>
 
               {message.role === 'user' && <Avatar className="h-8 w-8 bg-secondary border-0">
-                  <User className="h-5 w-5 text-secondary-foreground" />
                 </Avatar>}
             </div>)}
           
