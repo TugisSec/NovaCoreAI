@@ -1,7 +1,7 @@
-import { AIChatApp } from "@/components/AIChatApp";
+import { JarvisAI } from "@/components/JarvisAI";
 
 const Index = () => {
-  return <AIChatApp />;
+  return <JarvisAI />;
 };
 
 export default Index;
