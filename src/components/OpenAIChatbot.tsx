@@ -296,7 +296,7 @@ const OpenAIChatbot = () => {
       {/* Sidebar - Chat History */}
       <div className="w-80 border-r border-border bg-card flex flex-col">
         {/* Sidebar Header */}
-        <div className="px-4 py-6 border-b border-border bg-card h-16 flex items-center">
+        <div className="px-4 py-8 border-b border-border bg-card h-20 flex items-center">
         </div>
         
         {/* Chat History */}
