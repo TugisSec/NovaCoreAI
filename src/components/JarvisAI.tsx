@@ -27,6 +27,7 @@ export const JarvisAI = () => {
   const [currentCommand, setCurrentCommand] = useState('');
   const [commandHistory, setCommandHistory] = useState<VoiceCommand[]>([]);
   const [elevenLabsAPIKey, setElevenLabsAPIKey] = useState<string>('');
+  const [speechTimeout, setSpeechTimeout] = useState<NodeJS.Timeout | null>(null);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>({
     power: 87,
     security: 'active',
@@ -45,16 +46,21 @@ export const JarvisAI = () => {
       recognitionRef.current = new SpeechRecognition();
       
       const recognition = recognitionRef.current;
-      recognition.continuous = true;
+      recognition.continuous = false; // Changed to false for better control
       recognition.interimResults = true;
       recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        console.log('Speech recognition started');
+      };
 
       recognition.onresult = (event) => {
         let finalTranscript = '';
         let interimTranscript = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
+          const transcript = event.results[i][0].transcript.trim();
           if (event.results[i].isFinal) {
             finalTranscript += transcript;
           } else {
@@ -62,76 +68,130 @@ export const JarvisAI = () => {
           }
         }
 
-        setCurrentCommand(interimTranscript || finalTranscript);
+        const currentText = finalTranscript || interimTranscript;
+        setCurrentCommand(currentText);
 
-        if (finalTranscript && finalTranscript.trim()) {
-          handleVoiceCommand(finalTranscript.trim());
-          // Automatically restart listening after processing
-          setTimeout(() => {
-            if (recognitionRef.current && isListening) {
-              try {
-                recognitionRef.current.start();
-              } catch (e) {
-                // Recognition might already be running
-              }
+        // Clear any existing timeout
+        if (speechTimeout) {
+          clearTimeout(speechTimeout);
+        }
+
+        // If we have interim results, set a timeout to process the command
+        if (interimTranscript && !finalTranscript) {
+          const timeout = setTimeout(() => {
+            if (currentText.length > 0) {
+              recognition.stop();
+              handleVoiceCommand(currentText);
             }
-          }, 100);
+          }, 2000); // Wait 2 seconds after last speech
+          setSpeechTimeout(timeout);
+        }
+
+        // Process final results immediately
+        if (finalTranscript.length > 0) {
+          if (speechTimeout) {
+            clearTimeout(speechTimeout);
+            setSpeechTimeout(null);
+          }
+          recognition.stop();
+          handleVoiceCommand(finalTranscript);
         }
       };
 
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        // Auto-restart on most errors
-        if (event.error !== 'aborted' && isListening) {
+        
+        // Handle specific errors
+        if (event.error === 'no-speech') {
+          // Restart listening after no speech detected
           setTimeout(() => {
-            if (recognitionRef.current && isListening) {
-              try {
-                recognitionRef.current.start();
-              } catch (e) {
-                setIsListening(false);
-              }
+            if (isListening && !isProcessing) {
+              restartRecognition();
+            }
+          }, 500);
+        } else if (event.error === 'aborted') {
+          // Don't restart on aborted - user likely stopped intentionally
+          console.log('Speech recognition aborted');
+        } else {
+          // For other errors, try to restart
+          setTimeout(() => {
+            if (isListening && !isProcessing) {
+              restartRecognition();
             }
           }, 1000);
         }
       };
 
       recognition.onend = () => {
+        console.log('Speech recognition ended');
         setCurrentCommand('');
-        // Auto-restart if we're supposed to be listening
+        
+        // Auto-restart if we should still be listening and not processing
         if (isListening && !isProcessing) {
           setTimeout(() => {
-            if (recognitionRef.current) {
-              try {
-                recognitionRef.current.start();
-              } catch (e) {
-                // Recognition might fail to restart
-              }
-            }
-          }, 100);
+            restartRecognition();
+          }, 300);
         }
       };
     }
-  }, [isListening, isProcessing]);
+  }, [isListening, isProcessing, speechTimeout]);
+
+  const restartRecognition = () => {
+    if (!recognitionRef.current || !isListening || isProcessing) return;
+    
+    try {
+      recognitionRef.current.start();
+    } catch (error) {
+      console.log('Recognition restart failed:', error);
+      // Try again after a short delay
+      setTimeout(() => {
+        if (isListening && !isProcessing) {
+          try {
+            recognitionRef.current?.start();
+          } catch (e) {
+            console.log('Recognition restart failed again');
+          }
+        }
+      }, 1000);
+    }
+  };
 
   const toggleListening = () => {
     if (!recognitionRef.current) return;
 
     if (isListening) {
-      recognitionRef.current.stop();
+      // Clear any pending speech timeout
+      if (speechTimeout) {
+        clearTimeout(speechTimeout);
+        setSpeechTimeout(null);
+      }
+      
+      recognitionRef.current.abort(); // Use abort for cleaner stop
       setIsListening(false);
       setCurrentCommand('');
     } else {
+      setIsListening(true);
       try {
         recognitionRef.current.start();
-        setIsListening(true);
       } catch (error) {
         console.error('Failed to start recognition:', error);
+        setIsListening(false);
       }
     }
   };
 
   const handleVoiceCommand = async (command: string) => {
+    if (!command || command.length < 2) return; // Ignore very short inputs
+    
     setIsProcessing(true);
+    setCurrentCommand(''); // Clear the display
+    
+    // Clear any pending speech timeout
+    if (speechTimeout) {
+      clearTimeout(speechTimeout);
+      setSpeechTimeout(null);
+    }
+    
     const response = processCommand(command.toLowerCase());
     
     const voiceCommand: VoiceCommand = {
@@ -147,10 +207,13 @@ export const JarvisAI = () => {
     if (elevenLabsAPIKey) {
       await speakWithElevenLabs(response);
     } else {
-      speakWithBrowserTTS(response);
+      await speakWithBrowserTTS(response);
     }
     
-    setTimeout(() => setIsProcessing(false), 1000);
+    // Wait a bit before allowing new speech recognition
+    setTimeout(() => {
+      setIsProcessing(false);
+    }, 1500);
   };
 
   const speakWithElevenLabs = async (text: string) => {
@@ -190,14 +253,22 @@ export const JarvisAI = () => {
     }
   };
 
-  const speakWithBrowserTTS = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.1;
-      utterance.pitch = 0.9;
-      utterance.volume = 0.8;
-      window.speechSynthesis.speak(utterance);
-    }
+  const speakWithBrowserTTS = (text: string): Promise<void> => {
+    return new Promise((resolve) => {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.1;
+        utterance.pitch = 0.9;
+        utterance.volume = 0.8;
+        
+        utterance.onend = () => resolve();
+        utterance.onerror = () => resolve();
+        
+        window.speechSynthesis.speak(utterance);
+      } else {
+        resolve();
+      }
+    });
   };
 
   const processCommand = (command: string): string => {
@@ -299,7 +370,7 @@ export const JarvisAI = () => {
               
               {currentCommand && (
                 <div className="bg-slate-700/50 p-3 rounded border border-blue-500/20">
-                  <p className="text-blue-300 text-sm">Processing: "{currentCommand}"</p>
+                  <p className="text-blue-300 text-sm">Listening: "{currentCommand}"</p>
                 </div>
               )}
               
