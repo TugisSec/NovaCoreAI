@@ -415,7 +415,7 @@ const OpenAIChatbot = () => {
               }
               
               return (
-                <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
                   <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
                     <div className="whitespace-pre-wrap text-sm leading-relaxed">
                       {message.image ? (
@@ -441,7 +441,7 @@ const OpenAIChatbot = () => {
               );
             })}
             
-            {isLoading && <div className="flex gap-4 justify-start">
+            {isLoading && <div className="flex gap-4 justify-start animate-fade-in">
                 <Avatar className="h-8 w-8 bg-primary/10 border-0">
                   <Bot className="h-5 w-5 text-primary" />
                 </Avatar>
