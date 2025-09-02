@@ -238,7 +238,7 @@ const OpenAIChatbot = () => {
               <Card className={`max-w-[70%] p-4 ${
                 message.role === 'user' 
                   ? 'bg-message-sent text-message-sent-foreground' 
-                  : 'bg-message-received text-message-received-foreground'
+                  : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'
               }`}>
                 <div className="whitespace-pre-wrap text-sm leading-relaxed">
                   {message.content}
