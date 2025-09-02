@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, MessageSquare, Trash2, ChevronLeft } from 'lucide-react';
+import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, Menu, Trash2, ChevronLeft } from 'lucide-react';
 // Force refresh to clear ImageIcon reference
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
@@ -407,7 +407,7 @@ const OpenAIChatbot = () => {
                   className="h-10 w-10 hover:bg-accent transition-colors"
                   title="Open sidebar"
                 >
-                  <MessageSquare className="h-5 w-5" />
+                  <Menu className="h-5 w-5" />
                 </Button>
               )}
               <div className="p-2 bg-primary/10 rounded-full hidden sm:block">
