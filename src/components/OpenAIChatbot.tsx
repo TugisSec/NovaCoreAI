@@ -324,8 +324,8 @@ const OpenAIChatbot = () => {
     });
   };
   return <div className="h-screen flex bg-background transition-colors">
-      {/* Sidebar - Chat History */}
-      <div className={`${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-80'} transition-all duration-300 border-r border-border bg-card flex flex-col`}>
+      {/* Sidebar - Chat History - Fixed */}
+      <div className={`${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-80'} transition-all duration-300 border-r border-border bg-card flex flex-col fixed left-0 top-0 h-full z-40`}>
         {/* Sidebar Header */}
         <div className="px-4 py-8 border-b border-border bg-card h-20 flex items-center justify-between">
           <div className="flex-1"></div>
@@ -403,10 +403,10 @@ const OpenAIChatbot = () => {
       </div>
 
       {/* Main Chat Area - Fixed Layout */}
-      <div className="flex-1 flex flex-col">
+      <div className={`flex-1 flex flex-col ${sidebarCollapsed ? 'ml-0' : 'ml-80'} transition-all duration-300`}>
         <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
+          {/* Header - Fixed */}
+          <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between fixed top-0 right-0 z-30" style={{left: sidebarCollapsed ? '0' : '320px'}}>
             <div className="flex items-center gap-3">
               {sidebarCollapsed && (
                 <Button
@@ -472,8 +472,8 @@ const OpenAIChatbot = () => {
             </div>
           </header>
 
-          {/* Chat Messages */}
-          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+          {/* Chat Messages - Adjusted for fixed header */}
+          <ScrollArea className="flex-1 p-4 pt-20" ref={scrollAreaRef}>
             <div className="max-w-4xl mx-auto space-y-6">
               {messages.map(message => {
                 // Special case for welcome message
