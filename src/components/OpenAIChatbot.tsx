@@ -168,7 +168,7 @@ const OpenAIChatbot = () => {
           {messages.map(message => <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               
               
-              <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-sent text-message-sent-foreground' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
+              <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
                 <div className="whitespace-pre-wrap text-sm leading-relaxed">
                   {message.content}
                 </div>
