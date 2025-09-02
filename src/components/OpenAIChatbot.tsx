@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 interface Message {
   id: string;
-  content: string;
+  content: string | Array<{type: string; text?: string; image_url?: {url: string}}>;
   role: 'user' | 'assistant';
   timestamp: Date;
 }
@@ -67,7 +67,7 @@ const OpenAIChatbot = () => {
     toast.success('API key saved successfully!');
   };
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() && !uploadedImage) return;
     if (!apiKey) {
       toast.error('Please set your OpenAI API key in settings first');
       setIsSettingsOpen(true);
@@ -75,14 +75,39 @@ const OpenAIChatbot = () => {
     }
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: input.trim(),
+      content: input.trim() || "Image uploaded",
       role: 'user',
       timestamp: new Date()
     };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
+    const currentImage = uploadedImage;
+    setUploadedImage(null); // Clear the uploaded image after sending
     setIsLoading(true);
     try {
+      // Prepare messages for API
+      const apiMessages = [...messages, userMessage].map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      // If there's an uploaded image, modify the last message to include it
+      if (currentImage) {
+        const lastMessage = apiMessages[apiMessages.length - 1];
+        lastMessage.content = [
+          {
+            type: "text",
+            text: input.trim() || "What do you see in this image?"
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: currentImage
+            }
+          }
+        ];
+      }
+
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -91,10 +116,7 @@ const OpenAIChatbot = () => {
         },
         body: JSON.stringify({
           model: 'gpt-4o-mini',
-          messages: [...messages, userMessage].map(msg => ({
-            role: msg.role,
-            content: msg.content
-          })),
+          messages: apiMessages,
           stream: false,
           max_tokens: 2000,
           temperature: 0.7
@@ -125,6 +147,15 @@ const OpenAIChatbot = () => {
       e.preventDefault();
       sendMessage();
     }
+  };
+  const renderMessageContent = (content: string | Array<{type: string; text?: string; image_url?: {url: string}}>) => {
+    if (typeof content === 'string') {
+      return content;
+    }
+    
+    // For multimodal content, just return the text part for display
+    const textPart = content.find(item => item.type === 'text');
+    return textPart?.text || 'Image uploaded';
   };
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', {
@@ -197,7 +228,7 @@ const OpenAIChatbot = () => {
               
               <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
                 <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {message.content}
+                  {renderMessageContent(message.content)}
                 </div>
                 <div className="text-xs opacity-70 mt-2">
                   {formatTime(message.timestamp)}
@@ -273,7 +304,7 @@ const OpenAIChatbot = () => {
               )}
               <Textarea ref={textareaRef} placeholder="Type your message here... (Enter to send, Shift+Enter for new line)" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[60px] max-h-[200px] resize-none" disabled={isLoading} />
             </div>
-            <Button onClick={sendMessage} disabled={!input.trim() || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
+            <Button onClick={sendMessage} disabled={(!input.trim() && !uploadedImage) || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
               {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-white" /> : <Send className="h-8 w-8 text-white" />}
             </Button>
           </div>
