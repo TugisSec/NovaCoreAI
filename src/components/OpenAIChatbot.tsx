@@ -181,39 +181,43 @@ const OpenAIChatbot = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
-  // Enhanced auto-scroll effect for messages
+  // Auto-scroll when messages change
   useEffect(() => {
     const scrollToBottom = () => {
       if (scrollAreaRef.current) {
         // For ScrollArea component
         const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
         if (scrollContainer) {
-          scrollContainer.scrollTo({
-            top: scrollContainer.scrollHeight,
-            behavior: 'smooth'
-          });
+          scrollContainer.scrollTop = scrollContainer.scrollHeight;
         } else {
           // For regular div fallback
-          scrollAreaRef.current.scrollTo({
-            top: scrollAreaRef.current.scrollHeight,
-            behavior: 'smooth'
-          });
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
         }
       }
     };
 
-    // Multiple scroll attempts to ensure it works
+    // Immediate scroll when messages update
     scrollToBottom();
-    const timeoutId1 = setTimeout(scrollToBottom, 50);
-    const timeoutId2 = setTimeout(scrollToBottom, 150);
-    const timeoutId3 = setTimeout(scrollToBottom, 300);
-    
-    return () => {
-      clearTimeout(timeoutId1);
-      clearTimeout(timeoutId2);
-      clearTimeout(timeoutId3);
+  }, [messages]);
+
+  // Auto-scroll when loading state changes
+  useEffect(() => {
+    const scrollToBottom = () => {
+      if (scrollAreaRef.current) {
+        const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (scrollContainer) {
+          scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        } else {
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+        }
+      }
     };
-  }, [messages, isLoading]);
+
+    if (!isLoading) {
+      // Scroll after AI response is complete
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [isLoading]);
   const toggleTheme = () => {
     console.log('Toggle clicked! Current theme:', theme);
     const newTheme = theme === 'dark' ? 'light' : 'dark';
