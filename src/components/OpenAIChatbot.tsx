@@ -301,9 +301,9 @@ const OpenAIChatbot = () => {
         
         {/* Chat History */}
         <ScrollArea className="flex-1 p-2">
-          <div className="space-y-1">
+          <div className="space-y-1 mt-6">
             {/* Chat History Title at top of list */}
-            <h2 className="font-semibold text-foreground mb-3 px-2">Chat History</h2>
+            <h2 className="font-semibold text-foreground mb-3 px-2 mt-4">Chat History</h2>
             
             {/* New Chat Button */}
             <Button 
