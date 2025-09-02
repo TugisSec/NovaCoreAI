@@ -177,8 +177,7 @@ const OpenAIChatbot = () => {
                 </div>
               </Card>
 
-              {message.role === 'user' && <Avatar className="h-8 w-8 bg-secondary border-0">
-                </Avatar>}
+              
             </div>)}
           
           {isLoading && <div className="flex gap-4 justify-start">
