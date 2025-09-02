@@ -470,8 +470,8 @@ const OpenAIChatbot = () => {
                 // Special case for welcome message
                 if (message.content === 'WELCOME_MESSAGE') {
                   return (
-                    <div key={message.id} className="flex justify-center items-end h-48 pb-8">
-                      <h1 className="text-3xl font-bold text-foreground">
+                    <div key={message.id} className="flex justify-center items-center h-screen">
+                      <h1 className="text-xl font-bold text-foreground text-center">
                         {typedText}
                         {isTyping && <span className="animate-pulse">|</span>}
                       </h1>
