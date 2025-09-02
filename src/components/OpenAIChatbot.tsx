@@ -115,7 +115,7 @@ const OpenAIChatbot = () => {
       title: 'New Chat',
       messages: [{
         id: '1',
-        content: 'Hello! I\'m your AI assistant powered by OpenAI. How can I help you today?',
+        content: 'WELCOME_MESSAGE',
         role: 'assistant',
         timestamp: new Date()
       }],
@@ -399,33 +399,42 @@ const OpenAIChatbot = () => {
         {/* Chat Messages */}
         <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
           <div className="max-w-4xl mx-auto space-y-6">
-            {messages.map(message => <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                
-                
-                <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
-                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {message.image ? (
-                      <div className="space-y-2">
-                        {message.content && typeof message.content === 'string' && message.content !== 'Image uploaded' && (
-                          <div>{message.content}</div>
-                        )}
-                        <img 
-                          src={message.image} 
-                          alt="User uploaded image" 
-                          className="max-w-full max-h-48 rounded-md object-contain"
-                        />
-                      </div>
-                    ) : (
-                      renderMessageContent(message.content)
-                    )}
+            {messages.map(message => {
+              // Special case for welcome message
+              if (message.content === 'WELCOME_MESSAGE') {
+                return (
+                  <div key={message.id} className="flex justify-center items-center h-48">
+                    <h1 className="text-3xl font-bold text-foreground">Welcome to NovaCore AI</h1>
                   </div>
-                  <div className="text-xs opacity-70 mt-2">
-                    {formatTime(message.timestamp)}
-                  </div>
-                </Card>
-
-                
-              </div>)}
+                );
+              }
+              
+              return (
+                <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
+                    <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                      {message.image ? (
+                        <div className="space-y-2">
+                          {message.content && typeof message.content === 'string' && message.content !== 'Image uploaded' && (
+                            <div>{message.content}</div>
+                          )}
+                          <img 
+                            src={message.image} 
+                            alt="User uploaded image" 
+                            className="max-w-full max-h-48 rounded-md object-contain"
+                          />
+                        </div>
+                      ) : (
+                        renderMessageContent(message.content)
+                      )}
+                    </div>
+                    <div className="text-xs opacity-70 mt-2">
+                      {formatTime(message.timestamp)}
+                    </div>
+                  </Card>
+                </div>
+              );
+            })}
             
             {isLoading && <div className="flex gap-4 justify-start">
                 <Avatar className="h-8 w-8 bg-primary/10 border-0">
