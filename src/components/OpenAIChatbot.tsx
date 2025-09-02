@@ -196,6 +196,10 @@ const OpenAIChatbot = () => {
       return;
     }
     const currentImage = uploadedImage;
+    
+    // Remove welcome message when starting conversation
+    const filteredMessages = messages.filter(msg => msg.content !== 'WELCOME_MESSAGE');
+    
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input.trim() || "Image uploaded",
@@ -203,13 +207,15 @@ const OpenAIChatbot = () => {
       timestamp: new Date(),
       image: currentImage || undefined
     };
-    setMessages(prev => [...prev, userMessage]);
+    
+    const newMessages = [...filteredMessages, userMessage];
+    setMessages(newMessages);
     setInput('');
     setUploadedImage(null); // Clear the uploaded image after sending
     setIsLoading(true);
     try {
       // Prepare messages for API
-      const apiMessages = [...messages, userMessage].map(msg => ({
+      const apiMessages = newMessages.map(msg => ({
         role: msg.role,
         content: msg.content
       }));
