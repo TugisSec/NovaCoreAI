@@ -415,8 +415,8 @@ const OpenAIChatbot = () => {
               }
               
               return (
-                <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-                  <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
+                <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in transform transition-all duration-300 ease-out`}>
+                  <Card className={`max-w-[70%] p-4 transform hover:scale-105 transition-all duration-200 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white animate-slide-in-right' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white animate-slide-in-left'}`}>
                     <div className="whitespace-pre-wrap text-sm leading-relaxed">
                       {message.image ? (
                         <div className="space-y-2">
@@ -426,7 +426,7 @@ const OpenAIChatbot = () => {
                           <img 
                             src={message.image} 
                             alt="User uploaded image" 
-                            className="max-w-full max-h-48 rounded-md object-contain"
+                            className="max-w-full max-h-48 rounded-md object-contain transition-all duration-300 hover:scale-105"
                           />
                         </div>
                       ) : (
