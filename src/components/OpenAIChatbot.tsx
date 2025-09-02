@@ -16,6 +16,7 @@ interface Message {
   content: string | Array<{type: string; text?: string; image_url?: {url: string}}>;
   role: 'user' | 'assistant';
   timestamp: Date;
+  image?: string; // Store the image data for display
 }
 const OpenAIChatbot = () => {
   const {
@@ -73,15 +74,16 @@ const OpenAIChatbot = () => {
       setIsSettingsOpen(true);
       return;
     }
+    const currentImage = uploadedImage;
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input.trim() || "Image uploaded",
       role: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      image: currentImage || undefined
     };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
-    const currentImage = uploadedImage;
     setUploadedImage(null); // Clear the uploaded image after sending
     setIsLoading(true);
     try {
@@ -228,7 +230,20 @@ const OpenAIChatbot = () => {
               
               <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
                 <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {renderMessageContent(message.content)}
+                  {message.image ? (
+                    <div className="space-y-2">
+                      {message.content && typeof message.content === 'string' && message.content !== 'Image uploaded' && (
+                        <div>{message.content}</div>
+                      )}
+                      <img 
+                        src={message.image} 
+                        alt="User uploaded image" 
+                        className="max-w-full max-h-48 rounded-md object-contain"
+                      />
+                    </div>
+                  ) : (
+                    renderMessageContent(message.content)
+                  )}
                 </div>
                 <div className="text-xs opacity-70 mt-2">
                   {formatTime(message.timestamp)}
