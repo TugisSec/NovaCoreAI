@@ -169,8 +169,9 @@ const OpenAIChatbot = () => {
           
           <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-10 w-10">
-                <Settings className="h-5 w-5" />
+              <Button variant="outline" size="sm">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
