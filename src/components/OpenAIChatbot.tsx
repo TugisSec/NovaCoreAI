@@ -531,8 +531,8 @@ const OpenAIChatbot = () => {
         </div>
         
         <div className="min-h-[120px]">
-          {/* Input Area */}
-          <div className="sticky bottom-0 border-t border-border bg-card p-2 sm:p-4 h-32 z-10">
+          {/* Input Area - Fixed */}
+          <div className="fixed bottom-0 right-0 border-t border-border bg-card p-2 sm:p-4 h-32 z-20" style={{left: sidebarCollapsed ? '0' : '320px'}}>
             <div className="max-w-4xl mx-auto h-full flex flex-col justify-center">
               <div className="flex gap-3 items-end">
                 <input
