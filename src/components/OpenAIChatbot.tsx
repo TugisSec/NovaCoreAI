@@ -465,7 +465,7 @@ const OpenAIChatbot = () => {
 
           {/* Chat Messages - Adjusted for fixed header */}
           {messages.every(msg => msg.content === 'WELCOME_MESSAGE') ? (
-            <div className="flex-1 p-4 pt-20 overflow-hidden" ref={scrollAreaRef}>
+            <div className="flex-1 p-4 pt-20 overflow-hidden pointer-events-none select-none" ref={scrollAreaRef}>
               <div className="max-w-4xl mx-auto space-y-6">
                 {messages.map(message => {
                   // Special case for welcome message
