@@ -182,12 +182,22 @@ const OpenAIChatbot = () => {
     setMounted(true);
   }, []);
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+    const scrollToBottom = () => {
+      if (scrollAreaRef.current) {
+        // For ScrollArea component
+        const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+        if (scrollContainer) {
+          scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        } else {
+          // For regular div fallback
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+        }
       }
-    }
+    };
+
+    // Small delay to ensure DOM has updated
+    const timeoutId = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timeoutId);
   }, [messages, isLoading]);
   const toggleTheme = () => {
     console.log('Toggle clicked! Current theme:', theme);
