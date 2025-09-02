@@ -316,7 +316,7 @@ const OpenAIChatbot = () => {
             {chatSessions.map((session) => (
               <div
                 key={session.id}
-                className={`group relative flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-colors ${
+                className={`group relative flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all duration-300 ease-out hover:scale-105 ${
                   session.id === currentSessionId
                     ? 'bg-primary/10 text-primary'
                     : 'hover:bg-muted/50 text-muted-foreground hover:text-foreground'
@@ -328,10 +328,17 @@ const OpenAIChatbot = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/20"
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/20 transition-all duration-200 hover:scale-110"
                     onClick={(e) => {
                       e.stopPropagation();
-                      deleteChat(session.id);
+                      // Add fade-out animation before deleting
+                      const chatElement = e.currentTarget.closest('.group');
+                      if (chatElement) {
+                        chatElement.classList.add('animate-fade-out', 'scale-95');
+                        setTimeout(() => deleteChat(session.id), 200);
+                      } else {
+                        deleteChat(session.id);
+                      }
                     }}
                   >
                     <Trash2 className="h-3 w-3" />
