@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon } from 'lucide-react';
+import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 interface Message {
@@ -198,6 +198,26 @@ const OpenAIChatbot = () => {
       <div className="border-t border-border bg-card p-4">
         <div className="max-w-4xl mx-auto">
           <div className="flex gap-3 items-end">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              id="image-upload"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  toast.success(`Selected: ${file.name}`);
+                }
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-[60px] w-[60px] text-muted-foreground hover:text-foreground"
+              onClick={() => document.getElementById('image-upload')?.click()}
+            >
+              <Image className="h-6 w-6" />
+            </Button>
             <div className="flex-1">
               <Textarea ref={textareaRef} placeholder="Type your message here... (Enter to send, Shift+Enter for new line)" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[60px] max-h-[200px] resize-none" disabled={isLoading} />
             </div>
