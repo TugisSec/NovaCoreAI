@@ -181,7 +181,7 @@ const OpenAIChatbot = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
-  // Immediate auto-scroll when messages appear
+  // Enhanced auto-scroll for new messages
   useEffect(() => {
     const scrollToBottom = () => {
       if (scrollAreaRef.current) {
@@ -189,27 +189,29 @@ const OpenAIChatbot = () => {
         const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
         if (scrollContainer) {
           scrollContainer.scrollTop = scrollContainer.scrollHeight;
-          // Force scroll with requestAnimationFrame for better reliability
-          requestAnimationFrame(() => {
+          // Multiple attempts for reliability
+          setTimeout(() => {
             scrollContainer.scrollTop = scrollContainer.scrollHeight;
-          });
+          }, 10);
+          setTimeout(() => {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+          }, 50);
         } else {
           // For regular div fallback
           scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-          requestAnimationFrame(() => {
+          setTimeout(() => {
             scrollAreaRef.current!.scrollTop = scrollAreaRef.current!.scrollHeight;
-          });
+          }, 10);
+          setTimeout(() => {
+            scrollAreaRef.current!.scrollTop = scrollAreaRef.current!.scrollHeight;
+          }, 50);
         }
       }
     };
 
-    // Immediate scroll when messages change
+    // Immediate scroll when new messages appear
     scrollToBottom();
-    
-    // Additional scroll after DOM updates
-    const timeoutId = setTimeout(scrollToBottom, 0);
-    return () => clearTimeout(timeoutId);
-  }, [messages, isLoading]);
+  }, [messages.length, isLoading]); // Watch message count for new messages
   const toggleTheme = () => {
     console.log('Toggle clicked! Current theme:', theme);
     const newTheme = theme === 'dark' ? 'light' : 'dark';
