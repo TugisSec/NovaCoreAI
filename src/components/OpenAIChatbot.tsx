@@ -593,7 +593,7 @@ const OpenAIChatbot = () => {
                       />
                     </div>
                   )}
-                  <Textarea ref={textareaRef} placeholder="Type your message here..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[40px] max-h-[72px] resize-none overflow-y-auto scrollbar-hide border-border hover:border-transparent focus:border-transparent focus-visible:ring-0" disabled={isLoading} />
+                  <Textarea ref={textareaRef} placeholder="Type your message here..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[40px] max-h-[72px] resize-none overflow-y-auto scrollbar-hide border-border focus-visible:ring-0" disabled={isLoading} />
                 </div>
                 <Button onClick={sendMessage} disabled={(!input.trim() && !uploadedImage) || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
                   {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-white" /> : <Send className="h-8 w-8 text-white" />}
