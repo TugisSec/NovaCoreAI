@@ -297,13 +297,15 @@ const OpenAIChatbot = () => {
       <div className="w-80 border-r border-border bg-card flex flex-col">
         {/* Sidebar Header */}
         <div className="p-4 border-b border-border">
-          <h2 className="font-semibold text-foreground">Chat History</h2>
         </div>
         
         {/* Chat History */}
         <ScrollArea className="flex-1 p-2">
           <div className="space-y-1">
-            {/* New Chat Button at top of list */}
+            {/* Chat History Title at top of list */}
+            <h2 className="font-semibold text-foreground mb-3 px-2">Chat History</h2>
+            
+            {/* New Chat Button */}
             <Button 
               onClick={createNewChat} 
               className="w-full flex items-center gap-2 mb-3"
