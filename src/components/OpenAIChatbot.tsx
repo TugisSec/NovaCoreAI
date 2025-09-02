@@ -187,7 +187,7 @@ const OpenAIChatbot = () => {
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <Settings className="h-4 w-4 mr-2" />
-                Settings
+                API Settings
               </Button>
             </DialogTrigger>
             <DialogContent>
