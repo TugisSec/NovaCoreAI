@@ -1,7 +1,7 @@
-import { JarvisAI } from "@/components/JarvisAI";
+import OpenAIChatbot from "@/components/OpenAIChatbot";
 
 const Index = () => {
-  return <JarvisAI />;
+  return <OpenAIChatbot />;
 };
 
 export default Index;
