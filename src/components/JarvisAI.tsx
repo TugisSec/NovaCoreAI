@@ -27,7 +27,7 @@ export const JarvisAI = () => {
   const [currentCommand, setCurrentCommand] = useState('');
   const [commandHistory, setCommandHistory] = useState<VoiceCommand[]>([]);
   const [elevenLabsAPIKey, setElevenLabsAPIKey] = useState<string>('');
-  const [speechTimeout, setSpeechTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [lastProcessedCommand, setLastProcessedCommand] = useState('');
   const [systemStatus, setSystemStatus] = useState<SystemStatus>({
     power: 87,
     security: 'active',
@@ -46,13 +46,13 @@ export const JarvisAI = () => {
       recognitionRef.current = new SpeechRecognition();
       
       const recognition = recognitionRef.current;
-      recognition.continuous = false; // Changed to false for better control
+      recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       recognition.maxAlternatives = 1;
 
       recognition.onstart = () => {
-        console.log('Speech recognition started');
+        console.log('🎤 Speech recognition started');
       };
 
       recognition.onresult = (event) => {
@@ -62,97 +62,59 @@ export const JarvisAI = () => {
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript.trim();
           if (event.results[i].isFinal) {
-            finalTranscript += transcript;
+            finalTranscript += transcript + ' ';
           } else {
             interimTranscript += transcript;
           }
         }
 
-        const currentText = finalTranscript || interimTranscript;
-        setCurrentCommand(currentText);
+        // Show what we're hearing
+        setCurrentCommand(interimTranscript || finalTranscript.trim());
 
-        // Clear any existing timeout
-        if (speechTimeout) {
-          clearTimeout(speechTimeout);
-        }
-
-        // If we have interim results, set a timeout to process the command
-        if (interimTranscript && !finalTranscript) {
-          const timeout = setTimeout(() => {
-            if (currentText.length > 0) {
-              recognition.stop();
-              handleVoiceCommand(currentText);
-            }
-          }, 2000); // Wait 2 seconds after last speech
-          setSpeechTimeout(timeout);
-        }
-
-        // Process final results immediately
-        if (finalTranscript.length > 0) {
-          if (speechTimeout) {
-            clearTimeout(speechTimeout);
-            setSpeechTimeout(null);
-          }
-          recognition.stop();
-          handleVoiceCommand(finalTranscript);
+        // Only process final results and prevent duplicates
+        if (finalTranscript.trim() && finalTranscript.trim() !== lastProcessedCommand && !isProcessing) {
+          console.log('📝 Final transcript:', finalTranscript.trim());
+          handleVoiceCommand(finalTranscript.trim());
         }
       };
 
       recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
+        console.error('🚫 Speech recognition error:', event.error);
         
-        // Handle specific errors
         if (event.error === 'no-speech') {
-          // Restart listening after no speech detected
+          console.log('⏸️ No speech detected, continuing to listen...');
+        } else if (event.error !== 'aborted') {
+          console.log('🔄 Restarting recognition due to error...');
           setTimeout(() => {
             if (isListening && !isProcessing) {
-              restartRecognition();
-            }
-          }, 500);
-        } else if (event.error === 'aborted') {
-          // Don't restart on aborted - user likely stopped intentionally
-          console.log('Speech recognition aborted');
-        } else {
-          // For other errors, try to restart
-          setTimeout(() => {
-            if (isListening && !isProcessing) {
-              restartRecognition();
+              startRecognition();
             }
           }, 1000);
         }
       };
 
       recognition.onend = () => {
-        console.log('Speech recognition ended');
+        console.log('⏹️ Speech recognition ended');
         setCurrentCommand('');
         
-        // Auto-restart if we should still be listening and not processing
+        // Auto-restart if we should still be listening
         if (isListening && !isProcessing) {
           setTimeout(() => {
-            restartRecognition();
-          }, 300);
+            startRecognition();
+          }, 100);
         }
       };
     }
-  }, [isListening, isProcessing, speechTimeout]);
+  }, []);
 
-  const restartRecognition = () => {
-    if (!recognitionRef.current || !isListening || isProcessing) return;
+  const startRecognition = () => {
+    if (!recognitionRef.current || isProcessing) return;
     
     try {
       recognitionRef.current.start();
+      console.log('🚀 Starting speech recognition...');
     } catch (error) {
-      console.log('Recognition restart failed:', error);
-      // Try again after a short delay
-      setTimeout(() => {
-        if (isListening && !isProcessing) {
-          try {
-            recognitionRef.current?.start();
-          } catch (e) {
-            console.log('Recognition restart failed again');
-          }
-        }
-      }, 1000);
+      console.log('⚠️ Recognition start failed:', error);
     }
   };
 
@@ -160,60 +122,60 @@ export const JarvisAI = () => {
     if (!recognitionRef.current) return;
 
     if (isListening) {
-      // Clear any pending speech timeout
-      if (speechTimeout) {
-        clearTimeout(speechTimeout);
-        setSpeechTimeout(null);
-      }
-      
-      recognitionRef.current.abort(); // Use abort for cleaner stop
+      console.log('🛑 Stopping voice recognition');
+      recognitionRef.current.abort();
       setIsListening(false);
       setCurrentCommand('');
+      setLastProcessedCommand('');
     } else {
+      console.log('🎯 Starting voice recognition');
       setIsListening(true);
-      try {
-        recognitionRef.current.start();
-      } catch (error) {
-        console.error('Failed to start recognition:', error);
-        setIsListening(false);
-      }
+      setLastProcessedCommand('');
+      startRecognition();
     }
   };
 
   const handleVoiceCommand = async (command: string) => {
-    if (!command || command.length < 2) return; // Ignore very short inputs
+    const trimmedCommand = command.trim().toLowerCase();
     
-    setIsProcessing(true);
-    setCurrentCommand(''); // Clear the display
-    
-    // Clear any pending speech timeout
-    if (speechTimeout) {
-      clearTimeout(speechTimeout);
-      setSpeechTimeout(null);
+    // Prevent processing empty, short, or duplicate commands
+    if (!trimmedCommand || trimmedCommand.length < 3 || trimmedCommand === lastProcessedCommand || isProcessing) {
+      console.log('🚫 Skipping command:', trimmedCommand, 'Already processed or invalid');
+      return;
     }
     
-    const response = processCommand(command.toLowerCase());
+    console.log('✅ Processing command:', trimmedCommand);
+    setIsProcessing(true);
+    setCurrentCommand('');
+    setLastProcessedCommand(trimmedCommand);
+    
+    const response = processCommand(trimmedCommand);
     
     const voiceCommand: VoiceCommand = {
       id: Date.now().toString(),
-      command,
+      command: command.trim(),
       timestamp: new Date(),
       response
     };
     
     setCommandHistory(prev => [voiceCommand, ...prev].slice(0, 10));
     
-    // Use ElevenLabs if configured, otherwise fallback to browser TTS
-    if (elevenLabsAPIKey) {
-      await speakWithElevenLabs(response);
-    } else {
-      await speakWithBrowserTTS(response);
+    // Speak the response
+    try {
+      if (elevenLabsAPIKey) {
+        await speakWithElevenLabs(response);
+      } else {
+        await speakWithBrowserTTS(response);
+      }
+    } catch (error) {
+      console.error('TTS error:', error);
     }
     
-    // Wait a bit before allowing new speech recognition
+    // Wait before allowing new commands
     setTimeout(() => {
+      console.log('✅ Ready for next command');
       setIsProcessing(false);
-    }, 1500);
+    }, 1000);
   };
 
   const speakWithElevenLabs = async (text: string) => {
@@ -272,6 +234,8 @@ export const JarvisAI = () => {
   };
 
   const processCommand = (command: string): string => {
+    console.log('🧠 Processing:', command);
+    
     if (command.includes('status') || command.includes('report')) {
       return `All systems operational, Mr. Stark. Power at ${systemStatus.power}%, security is ${systemStatus.security}, reactor output at ${systemStatus.reactorOutput}%.`;
     }
@@ -286,24 +250,33 @@ export const JarvisAI = () => {
       return 'Power levels increased. Reactor output optimized.';
     }
     
-    if (command.includes('temperature')) {
+    if (command.includes('temperature') || command.includes('temp')) {
       return `Current ambient temperature is ${systemStatus.temperature} degrees Celsius. All cooling systems functioning normally.`;
     }
     
-    if (command.includes('hello') || command.includes('jarvis')) {
+    if (command.includes('weather')) {
+      return 'External conditions are clear skies with temperature at 22 degrees Celsius. Light winds from the northwest at 8 kilometers per hour. Visibility excellent.';
+    }
+    
+    if (command.includes('time') || command.includes('what time')) {
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const date = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      return `The current time is ${time} on ${date}.`;
+    }
+    
+    if (command.includes('name') || command.includes('my name')) {
+      return 'You are Mr. Stark, genius, billionaire, philanthropist. Though I believe you prefer Tony.';
+    }
+    
+    if (command.includes('hello') || command.includes('jarvis') || command.includes('hey')) {
       return 'Good to see you, Mr. Stark. How may I assist you today?';
     }
     
-    if (command.includes('time')) {
-      const time = new Date().toLocaleTimeString();
-      return `The current time is ${time}.`;
+    if (command.includes('thank you') || command.includes('thanks')) {
+      return 'You are very welcome, sir. Always happy to assist.';
     }
     
-    if (command.includes('weather')) {
-      return 'External conditions are clear. Temperature 22 degrees Celsius with light winds from the northwest.';
-    }
-    
-    return 'Command acknowledged. Processing your request, sir.';
+    return 'Command acknowledged, Mr. Stark. How else may I be of service?';
   };
 
   const formatTime = (date: Date) => {
