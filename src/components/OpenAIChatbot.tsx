@@ -574,7 +574,7 @@ const OpenAIChatbot = () => {
                 </Button>
                 <div className="flex-1">
                   {uploadedImage && (
-                    <div className="mb-2 sm:mb-3 p-2 sm:p-3 bg-muted/50 rounded-lg border border-border">
+                    <div className="mb-2 sm:mb-3 lg:mb-2 p-2 sm:p-3 lg:p-2 bg-muted/50 rounded-lg border border-border">
                       <div className="flex items-center justify-between mb-1 sm:mb-2">
                         <span className="text-xs sm:text-sm text-muted-foreground">Image attached</span>
                         <Button
