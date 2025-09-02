@@ -512,7 +512,7 @@ const OpenAIChatbot = () => {
                 return (
                   <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in transform transition-all duration-300 ease-out`}>
                     <Card className={`max-w-[95%] sm:max-w-[85%] md:max-w-[75%] lg:max-w-[70%] xl:max-w-[65%] p-3 sm:p-4 transform hover:scale-105 transition-all duration-200 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white animate-slide-in-right' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white animate-fade-in'}`}>
-                      <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                      <div className="whitespace-pre-wrap text-sm leading-relaxed animate-fade-in">
                         {message.image ? (
                           <div className="space-y-2">
                             {message.content && typeof message.content === 'string' && message.content !== 'Image uploaded' && (
