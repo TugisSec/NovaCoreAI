@@ -464,10 +464,27 @@ const OpenAIChatbot = () => {
           </header>
 
           {/* Chat Messages - Adjusted for fixed header */}
-          <ScrollArea 
-            className={`flex-1 p-4 pt-20 ${messages.every(msg => msg.content === 'WELCOME_MESSAGE') ? 'overflow-hidden' : ''}`} 
-            ref={scrollAreaRef}
-          >
+          {messages.every(msg => msg.content === 'WELCOME_MESSAGE') ? (
+            <div className="flex-1 p-4 pt-20 overflow-hidden" ref={scrollAreaRef}>
+              <div className="max-w-4xl mx-auto space-y-6">
+                {messages.map(message => {
+                  // Special case for welcome message
+                  if (message.content === 'WELCOME_MESSAGE') {
+                    return (
+                      <div key={message.id} className="flex justify-center items-center h-screen">
+                        <h1 className="text-xl font-bold text-foreground text-center">
+                          {typedText}
+                          {isTyping && <span className="animate-pulse">|</span>}
+                        </h1>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            </div>
+          ) : (
+            <ScrollArea className="flex-1 p-4 pt-20" ref={scrollAreaRef}>
             <div className="max-w-4xl mx-auto space-y-6">
               {messages.map(message => {
                 // Special case for welcome message
@@ -521,7 +538,8 @@ const OpenAIChatbot = () => {
                   </Card>
                 </div>}
             </div>
-          </ScrollArea>
+            </ScrollArea>
+          )}
         </div>
         
         <div className="min-h-[120px]">
