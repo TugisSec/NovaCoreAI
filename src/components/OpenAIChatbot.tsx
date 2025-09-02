@@ -328,20 +328,29 @@ const OpenAIChatbot = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/20 transition-all duration-200 hover:scale-110"
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/20 transition-all duration-200 hover:scale-110 active:scale-95"
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Add fade-out animation before deleting
-                      const chatElement = e.currentTarget.closest('.group');
+                      // Add click animation and fade-out effect
+                      const chatElement = e.currentTarget.closest('.group') as HTMLElement;
+                      const deleteButton = e.currentTarget as HTMLElement;
+                      
+                      // Animate delete button click
+                      deleteButton.classList.add('animate-pulse');
+                      
                       if (chatElement) {
-                        chatElement.classList.add('animate-fade-out', 'scale-95');
-                        setTimeout(() => deleteChat(session.id), 200);
+                        // Add fade-out and slide-out animation
+                        chatElement.style.transform = 'translateX(-100%)';
+                        chatElement.style.opacity = '0';
+                        chatElement.style.transition = 'all 0.3s ease-out';
+                        
+                        setTimeout(() => deleteChat(session.id), 300);
                       } else {
                         deleteChat(session.id);
                       }
                     }}
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <Trash2 className="h-3 w-3 transition-all duration-200" />
                   </Button>
                 )}
               </div>
