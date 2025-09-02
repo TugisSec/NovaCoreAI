@@ -47,8 +47,37 @@ const OpenAIChatbot = () => {
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [typedText, setTypedText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Typing animation effect
+  useEffect(() => {
+    const welcomeText = 'Welcome to NovaCore AI';
+    let currentIndex = 0;
+    
+    const startTyping = () => {
+      setIsTyping(true);
+      setTypedText('');
+      
+      const typeInterval = setInterval(() => {
+        if (currentIndex < welcomeText.length) {
+          setTypedText(prev => prev + welcomeText[currentIndex]);
+          currentIndex++;
+        } else {
+          clearInterval(typeInterval);
+          setIsTyping(false);
+        }
+      }, 100); // Adjust speed here (100ms per character)
+      
+      return () => clearInterval(typeInterval);
+    };
+    
+    // Start typing animation after a short delay
+    const timeout = setTimeout(startTyping, 500);
+    return () => clearTimeout(timeout);
+  }, []);
   
   // Load chat sessions from localStorage
   useEffect(() => {
@@ -449,7 +478,10 @@ const OpenAIChatbot = () => {
               if (message.content === 'WELCOME_MESSAGE') {
                 return (
                   <div key={message.id} className="flex justify-center items-end h-48 pb-8">
-                    <h1 className="text-3xl font-bold text-foreground">Welcome to NovaCore AI</h1>
+                    <h1 className="text-3xl font-bold text-foreground">
+                      {typedText}
+                      {isTyping && <span className="animate-pulse">|</span>}
+                    </h1>
                   </div>
                 );
               }
