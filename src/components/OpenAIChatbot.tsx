@@ -395,7 +395,7 @@ const OpenAIChatbot = () => {
 
       {/* Main Chat Area - Fixed Layout */}
       <div className={`flex-1 flex flex-col ${sidebarCollapsed ? 'ml-0' : 'ml-80'} transition-all duration-300`}>
-        <div className="flex-1 flex flex-col">
+        <div className={`flex-1 flex flex-col ${messages.every(msg => msg.content === 'WELCOME_MESSAGE') ? 'h-screen overflow-hidden' : ''}`}>
           {/* Header - Fixed */}
           <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between fixed top-0 right-0 z-30" style={{left: sidebarCollapsed ? '0' : '320px'}}>
             <div className="flex items-center gap-3">
