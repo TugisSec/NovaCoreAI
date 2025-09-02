@@ -203,8 +203,8 @@ const OpenAIChatbot = () => {
             <div className="flex-1">
               <Textarea ref={textareaRef} placeholder="Type your message here... (Enter to send, Shift+Enter for new line)" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[60px] max-h-[200px] resize-none" disabled={isLoading} />
             </div>
-            <Button onClick={sendMessage} disabled={!input.trim() || isLoading} size="lg" className="h-[60px] px-6">
-              {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+            <Button onClick={sendMessage} disabled={!input.trim() || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
+              {isLoading ? <Loader2 className="h-6 w-6 animate-spin text-white" /> : <Send className="h-6 w-6 text-white" />}
             </Button>
           </div>
           
