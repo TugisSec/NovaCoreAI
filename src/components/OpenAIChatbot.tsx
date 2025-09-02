@@ -291,19 +291,22 @@ const OpenAIChatbot = () => {
       <div className="w-80 border-r border-border bg-card flex flex-col">
         {/* Sidebar Header */}
         <div className="p-4 border-b border-border">
-          <Button 
-            onClick={createNewChat} 
-            className="w-full flex items-center gap-2"
-            variant="outline"
-          >
-            <Plus className="h-4 w-4" />
-            New Chat
-          </Button>
+          <h2 className="font-semibold text-foreground">Chat History</h2>
         </div>
         
         {/* Chat History */}
         <ScrollArea className="flex-1 p-2">
           <div className="space-y-1">
+            {/* New Chat Button at top */}
+            <Button 
+              onClick={createNewChat} 
+              className="w-full flex items-center gap-2 mb-3"
+              variant="outline"
+            >
+              <Plus className="h-4 w-4" />
+              New Chat
+            </Button>
+            
             {chatSessions.map((session) => (
               <div
                 key={session.id}
