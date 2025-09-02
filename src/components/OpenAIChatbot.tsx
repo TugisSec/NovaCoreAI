@@ -574,22 +574,22 @@ const OpenAIChatbot = () => {
                 </Button>
                 <div className="flex-1">
                   {uploadedImage && (
-                    <div className="mb-2 sm:mb-3 lg:mb-2 p-2 sm:p-3 lg:p-2 bg-muted/50 rounded-lg border border-border">
-                      <div className="flex items-center justify-between mb-1 sm:mb-2">
-                        <span className="text-xs sm:text-sm text-muted-foreground">Image attached</span>
+                    <div className="mb-1 p-1 bg-muted/50 rounded-md border border-border max-w-32">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-muted-foreground">Image</span>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setUploadedImage(null)}
-                          className="h-5 w-5 sm:h-6 sm:w-6 p-0 hover:bg-destructive/20"
+                          className="h-4 w-4 p-0 hover:bg-destructive/20"
                         >
-                          <X className="h-2 w-2 sm:h-3 sm:w-3" />
+                          <X className="h-2 w-2" />
                         </Button>
                       </div>
                       <img 
                         src={uploadedImage} 
                         alt="Uploaded preview" 
-                        className="max-w-full max-h-20 sm:max-h-32 rounded-md object-contain"
+                        className="max-w-full h-12 rounded-sm object-contain"
                       />
                     </div>
                   )}
