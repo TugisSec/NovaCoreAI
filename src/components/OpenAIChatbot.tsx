@@ -20,6 +20,7 @@ interface Message {
 
 const OpenAIChatbot = () => {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -36,8 +37,14 @@ const OpenAIChatbot = () => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    toast.success(`Switched to ${newTheme} mode`);
   };
 
   useEffect(() => {
@@ -159,8 +166,11 @@ const OpenAIChatbot = () => {
             size="icon"
             onClick={toggleTheme}
             className="h-10 w-10"
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
           >
-            {theme === 'dark' ? (
+            {!mounted ? (
+              <div className="h-5 w-5" />
+            ) : theme === 'dark' ? (
               <Sun className="h-5 w-5" />
             ) : (
               <Moon className="h-5 w-5" />
