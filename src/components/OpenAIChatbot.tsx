@@ -325,7 +325,7 @@ const OpenAIChatbot = () => {
   };
   return <div className="h-screen flex bg-background transition-colors">
       {/* Sidebar - Chat History */}
-      <div className={`${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-80'} transition-all duration-300 border-r border-border bg-card flex flex-col`}>
+      <div className={`${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-80'} transition-all duration-300 border-r border-border bg-card flex-col hidden lg:flex`}>
         {/* Sidebar Header */}
         <div className="px-4 py-8 border-b border-border bg-card h-20 flex items-center justify-between">
           <div className="flex-1"></div>
