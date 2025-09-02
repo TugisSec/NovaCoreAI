@@ -181,7 +181,7 @@ const OpenAIChatbot = () => {
   useEffect(() => {
     setMounted(true);
   }, []);
-  // Auto-scroll when messages change
+  // Immediate auto-scroll when messages appear
   useEffect(() => {
     const scrollToBottom = () => {
       if (scrollAreaRef.current) {
@@ -189,35 +189,27 @@ const OpenAIChatbot = () => {
         const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
         if (scrollContainer) {
           scrollContainer.scrollTop = scrollContainer.scrollHeight;
+          // Force scroll with requestAnimationFrame for better reliability
+          requestAnimationFrame(() => {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+          });
         } else {
           // For regular div fallback
           scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+          requestAnimationFrame(() => {
+            scrollAreaRef.current!.scrollTop = scrollAreaRef.current!.scrollHeight;
+          });
         }
       }
     };
 
-    // Immediate scroll when messages update
+    // Immediate scroll when messages change
     scrollToBottom();
-  }, [messages]);
-
-  // Auto-scroll when loading state changes
-  useEffect(() => {
-    const scrollToBottom = () => {
-      if (scrollAreaRef.current) {
-        const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (scrollContainer) {
-          scrollContainer.scrollTop = scrollContainer.scrollHeight;
-        } else {
-          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-        }
-      }
-    };
-
-    if (!isLoading) {
-      // Scroll after AI response is complete
-      setTimeout(scrollToBottom, 100);
-    }
-  }, [isLoading]);
+    
+    // Additional scroll after DOM updates
+    const timeoutId = setTimeout(scrollToBottom, 0);
+    return () => clearTimeout(timeoutId);
+  }, [messages, isLoading]);
   const toggleTheme = () => {
     console.log('Toggle clicked! Current theme:', theme);
     const newTheme = theme === 'dark' ? 'light' : 'dark';
