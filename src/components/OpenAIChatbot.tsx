@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X } from 'lucide-react';
+import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, MessageSquare, Trash2 } from 'lucide-react';
 // Force refresh to clear ImageIcon reference
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
@@ -17,6 +17,14 @@ interface Message {
   role: 'user' | 'assistant';
   timestamp: Date;
   image?: string; // Store the image data for display
+}
+
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 const OpenAIChatbot = () => {
   const {
@@ -36,8 +44,118 @@ const OpenAIChatbot = () => {
   const [tempApiKey, setTempApiKey] = useState(apiKey);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Load chat sessions from localStorage
+  useEffect(() => {
+    const savedSessions = localStorage.getItem('chat-sessions');
+    if (savedSessions) {
+      const sessions: ChatSession[] = JSON.parse(savedSessions).map((session: any) => ({
+        ...session,
+        createdAt: new Date(session.createdAt),
+        updatedAt: new Date(session.updatedAt),
+        messages: session.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }))
+      }));
+      setChatSessions(sessions);
+      
+      // If no current session, create a new one or use the first one
+      if (sessions.length > 0 && !currentSessionId) {
+        const lastSession = sessions[sessions.length - 1];
+        setCurrentSessionId(lastSession.id);
+        setMessages(lastSession.messages);
+      } else if (sessions.length === 0) {
+        createNewChat();
+      }
+    } else {
+      // Create first chat session if none exist
+      createNewChat();
+    }
+  }, []);
+  
+  // Save chat sessions to localStorage whenever they change
+  useEffect(() => {
+    if (chatSessions.length > 0) {
+      localStorage.setItem('chat-sessions', JSON.stringify(chatSessions));
+    }
+  }, [chatSessions]);
+  
+  // Update current session messages when messages change
+  useEffect(() => {
+    if (currentSessionId && messages.length > 0) {
+      setChatSessions(prev => prev.map(session => 
+        session.id === currentSessionId 
+          ? { 
+              ...session, 
+              messages, 
+              updatedAt: new Date(),
+              title: session.messages.length === 1 ? getSessionTitle(messages) : session.title
+            }
+          : session
+      ));
+    }
+  }, [messages, currentSessionId]);
+  
+  const getSessionTitle = (msgs: Message[]) => {
+    const firstUserMessage = msgs.find(msg => msg.role === 'user');
+    if (firstUserMessage && typeof firstUserMessage.content === 'string') {
+      return firstUserMessage.content.slice(0, 30) + (firstUserMessage.content.length > 30 ? '...' : '');
+    }
+    return `Chat ${new Date().toLocaleDateString()}`;
+  };
+  
+  const createNewChat = () => {
+    const newSession: ChatSession = {
+      id: Date.now().toString(),
+      title: 'New Chat',
+      messages: [{
+        id: '1',
+        content: 'Hello! I\'m your AI assistant powered by OpenAI. How can I help you today?',
+        role: 'assistant',
+        timestamp: new Date()
+      }],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    setChatSessions(prev => [...prev, newSession]);
+    setCurrentSessionId(newSession.id);
+    setMessages(newSession.messages);
+  };
+  
+  const switchToChat = (sessionId: string) => {
+    const session = chatSessions.find(s => s.id === sessionId);
+    if (session) {
+      setCurrentSessionId(sessionId);
+      setMessages(session.messages);
+    }
+  };
+  
+  const deleteChat = (sessionId: string) => {
+    setChatSessions(prev => {
+      const newSessions = prev.filter(s => s.id !== sessionId);
+      
+      // If we deleted the current session, switch to another one
+      if (sessionId === currentSessionId) {
+        if (newSessions.length > 0) {
+          const lastSession = newSessions[newSessions.length - 1];
+          setCurrentSessionId(lastSession.id);
+          setMessages(lastSession.messages);
+        } else {
+          // Create a new chat if no sessions left
+          setTimeout(() => createNewChat(), 0);
+        }
+      }
+      
+      return newSessions;
+    });
+    toast.success('Chat deleted');
+  };
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -168,175 +286,226 @@ const OpenAIChatbot = () => {
       minute: '2-digit'
     });
   };
-  return <div className="h-screen flex flex-col bg-background transition-colors">
-      {/* Header */}
-      <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-full">
-            <Sparkles className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-card-foreground">NovaCore</h1>
-            <p className="text-sm text-muted-foreground">Powered by OpenAI GPT</p>
-          </div>
+  return <div className="h-screen flex bg-background transition-colors">
+      {/* Sidebar - Chat History */}
+      <div className="w-80 border-r border-border bg-card flex flex-col">
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-border">
+          <Button 
+            onClick={createNewChat} 
+            className="w-full flex items-center gap-2"
+            variant="outline"
+          >
+            <Plus className="h-4 w-4" />
+            New Chat
+          </Button>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-10 w-10 hover:bg-accent transition-colors" title={mounted ? `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode` : 'Toggle theme'}>
-            {!mounted ? <div className="h-5 w-5 animate-pulse bg-muted rounded" /> : theme === 'dark' ? <Sun className="h-5 w-5 transition-all" /> : <Moon className="h-5 w-5 transition-all" />}
-          </Button>
-          
-          <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                API Settings
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Settings</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="api-key">OpenAI API Key</Label>
-                  <Input
-                    id="api-key"
-                    type="password"
-                    placeholder="sk-..."
-                    value={tempApiKey}
-                    onChange={(e) => setTempApiKey(e.target.value)}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Your API key is stored locally and never sent to our servers.
-                  </p>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
-                    Cancel
+        {/* Chat History */}
+        <ScrollArea className="flex-1 p-2">
+          <div className="space-y-1">
+            {chatSessions.map((session) => (
+              <div
+                key={session.id}
+                className={`group relative flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-colors ${
+                  session.id === currentSessionId
+                    ? 'bg-primary/10 text-primary'
+                    : 'hover:bg-muted/50 text-muted-foreground hover:text-foreground'
+                }`}
+                onClick={() => switchToChat(session.id)}
+              >
+                <MessageSquare className="h-4 w-4 flex-shrink-0" />
+                <span className="flex-1 text-sm truncate">{session.title}</span>
+                {chatSessions.length > 1 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/20"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteChat(session.id);
+                    }}
+                  >
+                    <Trash2 className="h-3 w-3" />
                   </Button>
-                  <Button onClick={saveApiKey}>
-                    Save API Key
-                  </Button>
-                </div>
+                )}
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </header>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
 
-      {/* Chat Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        <div className="max-w-4xl mx-auto space-y-6">
-          {messages.map(message => <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              
-              
-              <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
-                <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                  {message.image ? (
-                    <div className="space-y-2">
-                      {message.content && typeof message.content === 'string' && message.content !== 'Image uploaded' && (
-                        <div>{message.content}</div>
-                      )}
-                      <img 
-                        src={message.image} 
-                        alt="User uploaded image" 
-                        className="max-w-full max-h-48 rounded-md object-contain"
-                      />
-                    </div>
-                  ) : (
-                    renderMessageContent(message.content)
-                  )}
-                </div>
-                <div className="text-xs opacity-70 mt-2">
-                  {formatTime(message.timestamp)}
-                </div>
-              </Card>
-
-              
-            </div>)}
-          
-          {isLoading && <div className="flex gap-4 justify-start">
-              <Avatar className="h-8 w-8 bg-primary/10 border-0">
-                <Bot className="h-5 w-5 text-primary" />
-              </Avatar>
-              <Card className="bg-message-received text-message-received-foreground p-4">
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm">Thinking...</span>
-                </div>
-              </Card>
-            </div>}
-        </div>
-      </ScrollArea>
-
-      {/* Input Area */}
-      <div className="border-t border-border bg-card p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex gap-3 items-end">
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              id="image-upload"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    setUploadedImage(e.target?.result as string);
-                  };
-                  reader.readAsDataURL(file);
-                  toast.success(`Selected: ${file.name}`);
-                }
-              }}
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-[60px] w-[60px] text-muted-foreground hover:text-foreground"
-              onClick={() => document.getElementById('image-upload')?.click()}
-            >
-              <Image className="h-6 w-6" />
-            </Button>
-            <div className="flex-1">
-              {uploadedImage && (
-                <div className="mb-3 p-3 bg-muted/50 rounded-lg border border-border">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">Image attached</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setUploadedImage(null)}
-                      className="h-6 w-6 p-0 hover:bg-destructive/20"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                  <img 
-                    src={uploadedImage} 
-                    alt="Uploaded preview" 
-                    className="max-w-full max-h-32 rounded-md object-contain"
-                  />
-                </div>
-              )}
-              <Textarea ref={textareaRef} placeholder="Type your message here... (Enter to send, Shift+Enter for new line)" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[60px] max-h-[200px] resize-none" disabled={isLoading} />
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-full">
+              <Sparkles className="h-6 w-6 text-primary" />
             </div>
-            <Button onClick={sendMessage} disabled={(!input.trim() && !uploadedImage) || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
-              {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-white" /> : <Send className="h-8 w-8 text-white" />}
-            </Button>
+            <div>
+              <h1 className="text-xl font-semibold text-card-foreground">NovaCore</h1>
+              <p className="text-sm text-muted-foreground">Powered by OpenAI GPT</p>
+            </div>
           </div>
           
-          {!apiKey && <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-              <p className="text-sm text-destructive">
-                Please set your OpenAI API key in settings to start chatting
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-10 w-10 hover:bg-accent transition-colors" title={mounted ? `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode` : 'Toggle theme'}>
+              {!mounted ? <div className="h-5 w-5 animate-pulse bg-muted rounded" /> : theme === 'dark' ? <Sun className="h-5 w-5 transition-all" /> : <Moon className="h-5 w-5 transition-all" />}
+            </Button>
+            
+            <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  API Settings
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Settings</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="api-key">OpenAI API Key</Label>
+                    <Input
+                      id="api-key"
+                      type="password"
+                      placeholder="sk-..."
+                      value={tempApiKey}
+                      onChange={(e) => setTempApiKey(e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Your API key is stored locally and never sent to our servers.
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={saveApiKey}>
+                      Save API Key
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </header>
+
+        {/* Chat Messages */}
+        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+          <div className="max-w-4xl mx-auto space-y-6">
+            {messages.map(message => <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                
+                
+                <Card className={`max-w-[70%] p-4 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white'}`}>
+                  <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                    {message.image ? (
+                      <div className="space-y-2">
+                        {message.content && typeof message.content === 'string' && message.content !== 'Image uploaded' && (
+                          <div>{message.content}</div>
+                        )}
+                        <img 
+                          src={message.image} 
+                          alt="User uploaded image" 
+                          className="max-w-full max-h-48 rounded-md object-contain"
+                        />
+                      </div>
+                    ) : (
+                      renderMessageContent(message.content)
+                    )}
+                  </div>
+                  <div className="text-xs opacity-70 mt-2">
+                    {formatTime(message.timestamp)}
+                  </div>
+                </Card>
+
+                
+              </div>)}
+            
+            {isLoading && <div className="flex gap-4 justify-start">
+                <Avatar className="h-8 w-8 bg-primary/10 border-0">
+                  <Bot className="h-5 w-5 text-primary" />
+                </Avatar>
+                <Card className="bg-message-received text-message-received-foreground p-4">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Thinking...</span>
+                  </div>
+                </Card>
+              </div>}
+          </div>
+        </ScrollArea>
+
+        {/* Input Area */}
+        <div className="border-t border-border bg-card p-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex gap-3 items-end">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                id="image-upload"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      setUploadedImage(e.target?.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                    toast.success(`Selected: ${file.name}`);
+                  }
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-[60px] w-[60px] text-muted-foreground hover:text-foreground"
+                onClick={() => document.getElementById('image-upload')?.click()}
+              >
+                <Image className="h-6 w-6" />
+              </Button>
+              <div className="flex-1">
+                {uploadedImage && (
+                  <div className="mb-3 p-3 bg-muted/50 rounded-lg border border-border">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-muted-foreground">Image attached</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setUploadedImage(null)}
+                        className="h-6 w-6 p-0 hover:bg-destructive/20"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <img 
+                      src={uploadedImage} 
+                      alt="Uploaded preview" 
+                      className="max-w-full max-h-32 rounded-md object-contain"
+                    />
+                  </div>
+                )}
+                <Textarea ref={textareaRef} placeholder="Type your message here... (Enter to send, Shift+Enter for new line)" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[60px] max-h-[200px] resize-none" disabled={isLoading} />
+              </div>
+              <Button onClick={sendMessage} disabled={(!input.trim() && !uploadedImage) || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
+                {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-white" /> : <Send className="h-8 w-8 text-white" />}
+              </Button>
+            </div>
+            
+            {!apiKey && <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <p className="text-sm text-destructive">
+                  Please set your OpenAI API key in settings to start chatting
+                </p>
+              </div>}
+            
+            <div className="mt-3 text-center">
+              <p className="text-xs text-muted-foreground">
+                Developed by Ninio • All rights reserved
               </p>
-            </div>}
-          
-          <div className="mt-3 text-center">
-            <p className="text-xs text-muted-foreground">
-              Developed by Ninio • All rights reserved
-            </p>
+            </div>
           </div>
         </div>
       </div>
