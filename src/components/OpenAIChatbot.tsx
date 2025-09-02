@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, MessageSquare, Trash2, ChevronLeft } from 'lucide-react';
 // Force refresh to clear ImageIcon reference
 import { toast } from 'sonner';
@@ -401,203 +402,211 @@ const OpenAIChatbot = () => {
         </ScrollArea>
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {sidebarCollapsed && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSidebarCollapsed(false)}
-                className="h-10 w-10 hover:bg-accent transition-colors"
-                title="Open sidebar"
-              >
-                <MessageSquare className="h-5 w-5" />
-              </Button>
-            )}
-            <div className="p-2 bg-primary/10 rounded-full">
-              <Sparkles className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold text-card-foreground">NovaCore</h1>
-              <p className="text-sm text-muted-foreground">Powered by OpenAI GPT</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-10 w-10 hover:bg-accent transition-colors" title={mounted ? `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode` : 'Toggle theme'}>
-              {!mounted ? <div className="h-5 w-5 animate-pulse bg-muted rounded" /> : theme === 'dark' ? <Sun className="h-5 w-5 transition-all" /> : <Moon className="h-5 w-5 transition-all" />}
-            </Button>
-            
-            <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  API Settings
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Settings</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="api-key">OpenAI API Key</Label>
-                    <Input
-                      id="api-key"
-                      type="password"
-                      placeholder="sk-..."
-                      value={tempApiKey}
-                      onChange={(e) => setTempApiKey(e.target.value)}
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Your API key is stored locally and never sent to our servers.
-                    </p>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={saveApiKey}>
-                      Save API Key
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </header>
-
-        {/* Chat Messages */}
-        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-          <div className="max-w-4xl mx-auto space-y-6">
-            {messages.map(message => {
-              // Special case for welcome message
-              if (message.content === 'WELCOME_MESSAGE') {
-                return (
-                  <div key={message.id} className="flex justify-center items-end h-48 pb-8">
-                    <h1 className="text-3xl font-bold text-foreground">
-                      {typedText}
-                      {isTyping && <span className="animate-pulse">|</span>}
-                    </h1>
-                  </div>
-                );
-              }
-              
-              return (
-                <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in transform transition-all duration-300 ease-out`}>
-                  <Card className={`max-w-[70%] p-4 transform hover:scale-105 transition-all duration-200 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white animate-slide-in-right' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white animate-slide-in-left'}`}>
-                    <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                      {message.image ? (
-                        <div className="space-y-2">
-                          {message.content && typeof message.content === 'string' && message.content !== 'Image uploaded' && (
-                            <div>{message.content}</div>
-                          )}
-                          <img 
-                            src={message.image} 
-                            alt="User uploaded image" 
-                            className="max-w-full max-h-48 rounded-md object-contain transition-all duration-300 hover:scale-105"
-                          />
-                        </div>
-                      ) : (
-                        renderMessageContent(message.content)
-                      )}
-                    </div>
-                    <div className="text-xs opacity-70 mt-2">
-                      {formatTime(message.timestamp)}
-                    </div>
-                  </Card>
-                </div>
-              );
-            })}
-            
-            {isLoading && <div className="flex gap-4 justify-start animate-fade-in">
-                <Avatar className="h-8 w-8 bg-primary/10 border-0">
-                  <Bot className="h-5 w-5 text-primary" />
-                </Avatar>
-                <Card className="bg-message-received text-message-received-foreground p-4">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Thinking...</span>
-                  </div>
-                </Card>
-              </div>}
-          </div>
-        </ScrollArea>
-
-        {/* Input Area */}
-        <div className="border-t border-border bg-card p-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex gap-3 items-end">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                id="image-upload"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                      setUploadedImage(e.target?.result as string);
-                    };
-                    reader.readAsDataURL(file);
-                    toast.success(`Selected: ${file.name}`);
-                  }
-                }}
-              />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-[60px] w-[60px] text-muted-foreground hover:text-foreground"
-                onClick={() => document.getElementById('image-upload')?.click()}
-              >
-                <Image className="h-6 w-6" />
-              </Button>
-              <div className="flex-1">
-                {uploadedImage && (
-                  <div className="mb-3 p-3 bg-muted/50 rounded-lg border border-border">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-muted-foreground">Image attached</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setUploadedImage(null)}
-                        className="h-6 w-6 p-0 hover:bg-destructive/20"
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    <img 
-                      src={uploadedImage} 
-                      alt="Uploaded preview" 
-                      className="max-w-full max-h-32 rounded-md object-contain"
-                    />
-                  </div>
+      {/* Main Chat Area - Resizable */}
+      <ResizablePanelGroup direction="vertical" className="flex-1">
+        <ResizablePanel defaultSize={80} minSize={50}>
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {sidebarCollapsed && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSidebarCollapsed(false)}
+                    className="h-10 w-10 hover:bg-accent transition-colors"
+                    title="Open sidebar"
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                  </Button>
                 )}
-                <Textarea ref={textareaRef} placeholder="Type your message here... (Enter to send, Shift+Enter for new line)" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[60px] max-h-[200px] resize-none" disabled={isLoading} />
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold text-card-foreground">NovaCore</h1>
+                  <p className="text-sm text-muted-foreground">Powered by OpenAI GPT</p>
+                </div>
               </div>
-              <Button onClick={sendMessage} disabled={(!input.trim() && !uploadedImage) || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
-                {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-white" /> : <Send className="h-8 w-8 text-white" />}
-              </Button>
-            </div>
-            
-            {!apiKey && <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
-                <p className="text-sm text-destructive">
-                  Please set your OpenAI API key in settings to start chatting
+              
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-10 w-10 hover:bg-accent transition-colors" title={mounted ? `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode` : 'Toggle theme'}>
+                  {!mounted ? <div className="h-5 w-5 animate-pulse bg-muted rounded" /> : theme === 'dark' ? <Sun className="h-5 w-5 transition-all" /> : <Moon className="h-5 w-5 transition-all" />}
+                </Button>
+                
+                <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4 mr-2" />
+                      API Settings
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Settings</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="api-key">OpenAI API Key</Label>
+                        <Input
+                          id="api-key"
+                          type="password"
+                          placeholder="sk-..."
+                          value={tempApiKey}
+                          onChange={(e) => setTempApiKey(e.target.value)}
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Your API key is stored locally and never sent to our servers.
+                        </p>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
+                          Cancel
+                        </Button>
+                        <Button onClick={saveApiKey}>
+                          Save API Key
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </header>
+
+            {/* Chat Messages */}
+            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+              <div className="max-w-4xl mx-auto space-y-6">
+                {messages.map(message => {
+                  // Special case for welcome message
+                  if (message.content === 'WELCOME_MESSAGE') {
+                    return (
+                      <div key={message.id} className="flex justify-center items-end h-48 pb-8">
+                        <h1 className="text-3xl font-bold text-foreground">
+                          {typedText}
+                          {isTyping && <span className="animate-pulse">|</span>}
+                        </h1>
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div key={message.id} className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in transform transition-all duration-300 ease-out`}>
+                      <Card className={`max-w-[70%] p-4 transform hover:scale-105 transition-all duration-200 ${message.role === 'user' ? 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white animate-slide-in-right' : 'bg-message-received text-message-received-foreground dark:bg-gray-700 dark:text-white animate-slide-in-left'}`}>
+                        <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                          {message.image ? (
+                            <div className="space-y-2">
+                              {message.content && typeof message.content === 'string' && message.content !== 'Image uploaded' && (
+                                <div>{message.content}</div>
+                              )}
+                              <img 
+                                src={message.image} 
+                                alt="User uploaded image" 
+                                className="max-w-full max-h-48 rounded-md object-contain transition-all duration-300 hover:scale-105"
+                              />
+                            </div>
+                          ) : (
+                            renderMessageContent(message.content)
+                          )}
+                        </div>
+                        <div className="text-xs opacity-70 mt-2">
+                          {formatTime(message.timestamp)}
+                        </div>
+                      </Card>
+                    </div>
+                  );
+                })}
+                
+                {isLoading && <div className="flex gap-4 justify-start animate-fade-in">
+                    <Avatar className="h-8 w-8 bg-primary/10 border-0">
+                      <Bot className="h-5 w-5 text-primary" />
+                    </Avatar>
+                    <Card className="bg-message-received text-message-received-foreground p-4">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="text-sm">Thinking...</span>
+                      </div>
+                    </Card>
+                  </div>}
+              </div>
+            </ScrollArea>
+          </div>
+        </ResizablePanel>
+        
+        <ResizableHandle className="h-2 bg-border hover:bg-accent transition-colors" />
+        
+        <ResizablePanel defaultSize={20} minSize={15}>
+          {/* Input Area */}
+          <div className="border-t border-border bg-card p-4 h-full">
+            <div className="max-w-4xl mx-auto h-full flex flex-col justify-center">
+              <div className="flex gap-3 items-end">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="image-upload"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (e) => {
+                        setUploadedImage(e.target?.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                      toast.success(`Selected: ${file.name}`);
+                    }
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-[60px] w-[60px] text-muted-foreground hover:text-foreground"
+                  onClick={() => document.getElementById('image-upload')?.click()}
+                >
+                  <Image className="h-6 w-6" />
+                </Button>
+                <div className="flex-1">
+                  {uploadedImage && (
+                    <div className="mb-3 p-3 bg-muted/50 rounded-lg border border-border">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-muted-foreground">Image attached</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setUploadedImage(null)}
+                          className="h-6 w-6 p-0 hover:bg-destructive/20"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <img 
+                        src={uploadedImage} 
+                        alt="Uploaded preview" 
+                        className="max-w-full max-h-32 rounded-md object-contain"
+                      />
+                    </div>
+                  )}
+                  <Textarea ref={textareaRef} placeholder="Type your message here... (Enter to send, Shift+Enter for new line)" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[60px] max-h-[200px] resize-none" disabled={isLoading} />
+                </div>
+                <Button onClick={sendMessage} disabled={(!input.trim() && !uploadedImage) || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
+                  {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-white" /> : <Send className="h-8 w-8 text-white" />}
+                </Button>
+              </div>
+              
+              {!apiKey && <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                  <p className="text-sm text-destructive">
+                    Please set your OpenAI API key in settings to start chatting
+                  </p>
+                </div>}
+              
+              <div className="mt-3 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Developed by Ninio • All rights reserved
                 </p>
-              </div>}
-            
-            <div className="mt-3 text-center">
-              <p className="text-xs text-muted-foreground">
-                Developed by Ninio • All rights reserved
-              </p>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>;
 };
 export default OpenAIChatbot;
