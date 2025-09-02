@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, MessageSquare, Trash2 } from 'lucide-react';
+import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, MessageSquare, Trash2, ChevronLeft } from 'lucide-react';
 // Force refresh to clear ImageIcon reference
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
@@ -46,6 +46,7 @@ const OpenAIChatbot = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
@@ -294,9 +295,19 @@ const OpenAIChatbot = () => {
   };
   return <div className="h-screen flex bg-background transition-colors">
       {/* Sidebar - Chat History */}
-      <div className="w-80 border-r border-border bg-card flex flex-col">
+      <div className={`${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-80'} transition-all duration-300 border-r border-border bg-card flex flex-col`}>
         {/* Sidebar Header */}
-        <div className="px-4 py-8 border-b border-border bg-card h-20 flex items-center">
+        <div className="px-4 py-8 border-b border-border bg-card h-20 flex items-center justify-between">
+          <div className="flex-1"></div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarCollapsed(true)}
+            className="h-8 w-8 p-0 hover:bg-muted transition-colors"
+            title="Close sidebar"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
         </div>
         
         {/* Chat History */}
@@ -366,6 +377,17 @@ const OpenAIChatbot = () => {
         {/* Header */}
         <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
+            {sidebarCollapsed && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSidebarCollapsed(false)}
+                className="h-10 w-10 hover:bg-accent transition-colors"
+                title="Open sidebar"
+              >
+                <MessageSquare className="h-5 w-5" />
+              </Button>
+            )}
             <div className="p-2 bg-primary/10 rounded-full">
               <Sparkles className="h-6 w-6 text-primary" />
             </div>
