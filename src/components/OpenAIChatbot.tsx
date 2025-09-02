@@ -42,8 +42,10 @@ const OpenAIChatbot = () => {
   }, []);
 
   const toggleTheme = () => {
+    console.log('Current theme:', theme);
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
+    console.log('Switching to:', newTheme);
     toast.success(`Switched to ${newTheme} mode`);
   };
 
@@ -165,15 +167,15 @@ const OpenAIChatbot = () => {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="h-10 w-10"
-            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            className="h-10 w-10 hover:bg-accent"
+            title={mounted ? `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode` : 'Toggle theme'}
           >
             {!mounted ? (
-              <div className="h-5 w-5" />
+              <div className="h-5 w-5 animate-pulse bg-muted rounded" />
             ) : theme === 'dark' ? (
-              <Sun className="h-5 w-5" />
+              <Sun className="h-5 w-5 transition-all" />
             ) : (
-              <Moon className="h-5 w-5" />
+              <Moon className="h-5 w-5 transition-all" />
             )}
           </Button>
           
