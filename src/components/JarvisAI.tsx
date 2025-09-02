@@ -83,13 +83,17 @@ export const JarvisAI = () => {
         
         if (event.error === 'no-speech') {
           console.log('⏸️ No speech detected, continuing to listen...');
-        } else if (event.error !== 'aborted') {
+          // Don't restart immediately on no-speech, let onend handle it
+        } else if (event.error === 'aborted') {
+          console.log('🛑 Speech recognition aborted');
+          // Don't restart if aborted - this prevents infinite loops
+        } else {
           console.log('🔄 Restarting recognition due to error...');
           setTimeout(() => {
             if (isListening && !isProcessing) {
               startRecognition();
             }
-          }, 1000);
+          }, 1500);
         }
       };
 
@@ -97,11 +101,11 @@ export const JarvisAI = () => {
         console.log('⏹️ Speech recognition ended');
         setCurrentCommand('');
         
-        // Auto-restart if we should still be listening
+        // Auto-restart if we should still be listening and not processing
         if (isListening && !isProcessing) {
           setTimeout(() => {
             startRecognition();
-          }, 100);
+          }, 500);
         }
       };
     }
@@ -111,8 +115,14 @@ export const JarvisAI = () => {
     if (!recognitionRef.current || isProcessing) return;
     
     try {
-      recognitionRef.current.start();
-      console.log('🚀 Starting speech recognition...');
+      // Stop any existing recognition before starting new one
+      recognitionRef.current.abort();
+      setTimeout(() => {
+        if (recognitionRef.current && isListening && !isProcessing) {
+          recognitionRef.current.start();
+          console.log('🚀 Starting speech recognition...');
+        }
+      }, 100);
     } catch (error) {
       console.log('⚠️ Recognition start failed:', error);
     }
@@ -171,11 +181,15 @@ export const JarvisAI = () => {
       console.error('TTS error:', error);
     }
     
-    // Wait before allowing new commands
+    // Wait before allowing new commands and restart listening
     setTimeout(() => {
       console.log('✅ Ready for next command');
       setIsProcessing(false);
-    }, 1000);
+      // Restart listening after processing is complete
+      if (isListening) {
+        setTimeout(() => startRecognition(), 500);
+      }
+    }, 1500);
   };
 
   const speakWithElevenLabs = async (text: string) => {
