@@ -41,19 +41,19 @@ const OpenAIChatbot = () => {
     setMounted(true);
   }, []);
 
-  const toggleTheme = () => {
-    console.log('Current theme:', theme);
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    console.log('Switching to:', newTheme);
-    toast.success(`Switched to ${newTheme} mode`);
-  };
-
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const toggleTheme = () => {
+    console.log('Toggle clicked! Current theme:', theme);
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    console.log('Setting theme to:', newTheme);
+    toast.success(`Switched to ${newTheme} mode`);
+  };
 
   const saveApiKey = () => {
     if (!tempApiKey.trim()) {
@@ -149,7 +149,7 @@ const OpenAIChatbot = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background transition-colors">
       {/* Header */}
       <header className="border-b border-border bg-card px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -167,7 +167,7 @@ const OpenAIChatbot = () => {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="h-10 w-10 hover:bg-accent"
+            className="h-10 w-10 hover:bg-accent transition-colors"
             title={mounted ? `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode` : 'Toggle theme'}
           >
             {!mounted ? (
