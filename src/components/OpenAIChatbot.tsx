@@ -323,7 +323,6 @@ const OpenAIChatbot = () => {
                 }`}
                 onClick={() => switchToChat(session.id)}
               >
-                <MessageSquare className="h-4 w-4 flex-shrink-0" />
                 <span className="flex-1 text-sm truncate">{session.title}</span>
                 {chatSessions.length > 1 && (
                   <Button
