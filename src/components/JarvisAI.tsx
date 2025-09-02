@@ -64,22 +64,54 @@ export const JarvisAI = () => {
 
         setCurrentCommand(interimTranscript || finalTranscript);
 
-        if (finalTranscript) {
+        if (finalTranscript && finalTranscript.trim()) {
           handleVoiceCommand(finalTranscript.trim());
+          // Automatically restart listening after processing
+          setTimeout(() => {
+            if (recognitionRef.current && isListening) {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                // Recognition might already be running
+              }
+            }
+          }, 100);
         }
       };
 
       recognition.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
-        setIsListening(false);
+        // Auto-restart on most errors
+        if (event.error !== 'aborted' && isListening) {
+          setTimeout(() => {
+            if (recognitionRef.current && isListening) {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                setIsListening(false);
+              }
+            }
+          }, 1000);
+        }
       };
 
       recognition.onend = () => {
-        setIsListening(false);
         setCurrentCommand('');
+        // Auto-restart if we're supposed to be listening
+        if (isListening && !isProcessing) {
+          setTimeout(() => {
+            if (recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                // Recognition might fail to restart
+              }
+            }
+          }, 100);
+        }
       };
     }
-  }, []);
+  }, [isListening, isProcessing]);
 
   const toggleListening = () => {
     if (!recognitionRef.current) return;
@@ -87,9 +119,14 @@ export const JarvisAI = () => {
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
+      setCurrentCommand('');
     } else {
-      recognitionRef.current.start();
-      setIsListening(true);
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error('Failed to start recognition:', error);
+      }
     }
   };
 
@@ -256,7 +293,7 @@ export const JarvisAI = () => {
                   {isListening ? <MicOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
                 </Button>
                 <p className="mt-2 text-sm text-slate-300">
-                  {isListening ? 'Listening...' : 'Click to activate voice commands'}
+                  {isListening ? 'Listening... Speak naturally, I\'ll respond automatically' : 'Click to activate continuous voice mode'}
                 </p>
               </div>
               
