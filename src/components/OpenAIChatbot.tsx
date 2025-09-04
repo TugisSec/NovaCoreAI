@@ -349,7 +349,10 @@ const OpenAIChatbot = () => {
       <div className={`${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-80'} transition-all duration-300 border-r border-border bg-card flex flex-col fixed left-0 top-0 h-full z-40`}>
         {/* Sidebar Header */}
         <div className="px-4 py-8 border-b border-border bg-card h-20 flex items-center justify-between">
-          <div className="flex-1"></div>
+          <div className="flex items-center space-x-2">
+            <img src="/lovable-uploads/bf2320b5-8643-4c03-8f78-b4949293424c.png" alt="Nova Core Logo" className="h-8 w-8" />
+            <span className="font-semibold text-foreground">Nova Core</span>
+          </div>
           <Button
             variant="ghost"
             size="sm"
