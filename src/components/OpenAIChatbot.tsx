@@ -343,7 +343,7 @@ const OpenAIChatbot = () => {
         {/* Sidebar Header */}
         <div className="px-4 py-8 border-b border-border bg-card h-20 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <img src="/lovable-uploads/bf2320b5-8643-4c03-8f78-b4949293424c.png" alt="Nova Core Logo" className="h-12 w-12" />
+            <img src="/lovable-uploads/bf2320b5-8643-4c03-8f78-b4949293424c.png" alt="Nova Core Logo" className="h-16 w-16" />
             
           </div>
           <Button variant="ghost" size="sm" onClick={() => setSidebarCollapsed(true)} className="h-8 w-8 p-0 hover:bg-muted transition-colors" title="Close sidebar">
