@@ -401,7 +401,7 @@ const OpenAIChatbot = () => {
               {sidebarCollapsed && <Button variant="ghost" size="icon" onClick={() => setSidebarCollapsed(false)} className="h-10 w-10 hover:bg-accent transition-colors" title="Open sidebar">
                   <Menu className="h-5 w-5" />
                 </Button>}
-              <div className="p-2 bg-primary/10 rounded-full hidden sm:block">
+              <div className="p-2 rounded-full hidden sm:block">
                 <img src="/lovable-uploads/bf2320b5-8643-4c03-8f78-b4949293424c.png" alt="Nova Core Logo" className="h-6 w-6" />
               </div>
               <div>
