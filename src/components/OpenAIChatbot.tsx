@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, Menu, Trash2, ChevronLeft } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, Menu, Trash2, ChevronLeft, FileText } from 'lucide-react';
 // Force refresh to clear ImageIcon reference
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
@@ -521,9 +522,51 @@ const OpenAIChatbot = () => {
                   toast.success(`Selected: ${file.name}`);
                 }
               }} />
-                <Button variant="ghost" size="icon" className="h-[60px] w-[60px] text-muted-foreground hover:text-foreground" onClick={() => document.getElementById('image-upload')?.click()}>
-                  <Image className="h-6 w-6" />
-                </Button>
+                <input type="file" accept=".txt,.doc,.docx,.pdf" className="hidden" id="text-upload" onChange={e => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = e => {
+                    const content = e.target?.result as string;
+                    setInput(prev => prev + (prev ? '\n' : '') + content);
+                  };
+                  reader.readAsText(file);
+                  toast.success(`Selected: ${file.name}`);
+                }
+              }} />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-[60px] w-[60px] text-muted-foreground hover:text-foreground">
+                      <Plus className="h-6 w-6" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-2" align="start">
+                    <div className="space-y-1">
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start h-auto p-3 text-left"
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                      >
+                        <Image className="h-4 w-4 mr-3" />
+                        <div>
+                          <div className="font-medium">Image</div>
+                          <div className="text-xs text-muted-foreground">Upload an image file</div>
+                        </div>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-start h-auto p-3 text-left"
+                        onClick={() => document.getElementById('text-upload')?.click()}
+                      >
+                        <FileText className="h-4 w-4 mr-3" />
+                        <div>
+                          <div className="font-medium">Text File</div>
+                          <div className="text-xs text-muted-foreground">Upload a text document</div>
+                        </div>
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
                 <div className="flex-1">
                   {uploadedImage && <div className="mb-1 p-1 bg-muted/50 rounded-md border border-border max-w-32">
                       <div className="flex items-center justify-between mb-1">
