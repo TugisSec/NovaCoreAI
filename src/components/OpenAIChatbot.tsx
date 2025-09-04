@@ -402,7 +402,7 @@ const OpenAIChatbot = () => {
                   <Menu className="h-5 w-5" />
                 </Button>}
               <div className="p-4 rounded-full hidden sm:block">
-                <img src="/lovable-uploads/bf2320b5-8643-4c03-8f78-b4949293424c.png" alt="Nova Core Logo" className="h-6 w-6" />
+                <img src="/lovable-uploads/bf2320b5-8643-4c03-8f78-b4949293424c.png" alt="Nova Core Logo" className="h-10 w-10" />
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-card-foreground">NovaCore</h1>
