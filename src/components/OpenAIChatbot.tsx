@@ -364,7 +364,7 @@ const OpenAIChatbot = () => {
               New Chat
             </Button>
             
-            {chatSessions.map(session => <div key={session.id} className={`group relative flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all duration-300 ease-out hover:scale-105 ${session.id === currentSessionId ? 'bg-primary/10 text-primary' : 'hover:bg-muted/50 text-black dark:text-muted-foreground hover:text-black dark:hover:text-foreground'}`} onClick={() => switchToChat(session.id)}>
+            {chatSessions.map(session => <div key={session.id} className={`group relative flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-all duration-300 ease-out hover:scale-105 ${session.id === currentSessionId ? 'bg-primary/10 text-black dark:text-primary' : 'hover:bg-muted/50 text-black dark:text-muted-foreground hover:text-black dark:hover:text-foreground'}`} onClick={() => switchToChat(session.id)}>
                 <span className="flex-1 text-sm truncate">{session.title}</span>
                 {chatSessions.length > 1 && <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive/20 transition-all duration-200 hover:scale-110 active:scale-95" onClick={e => {
               e.stopPropagation();
