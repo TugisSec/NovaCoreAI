@@ -536,7 +536,7 @@ const OpenAIChatbot = () => {
               }} />
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-[60px] w-[60px] text-muted-foreground hover:text-foreground">
+                    <Button variant="ghost" size="icon" className="h-[80px] w-[80px] text-muted-foreground hover:text-foreground">
                       <Plus className="h-6 w-6" />
                     </Button>
                   </PopoverTrigger>
