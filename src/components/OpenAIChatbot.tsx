@@ -98,10 +98,17 @@ const OpenAIChatbot = () => {
         }))
       }));
       setChatSessions(sessions);
+      
+      // Load the most recent session
+      if (sessions.length > 0) {
+        const mostRecentSession = sessions[0];
+        setCurrentSessionId(mostRecentSession.id);
+        setMessages(mostRecentSession.messages);
+      }
+    } else {
+      // Only create a new chat if no sessions exist
+      createNewChat();
     }
-
-    // Always create a new welcome chat when page loads/refreshes
-    createNewChat();
   }, []);
 
   // Save chat sessions to localStorage whenever they change
