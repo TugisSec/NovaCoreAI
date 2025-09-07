@@ -575,7 +575,8 @@ const OpenAIChatbot = () => {
                   </PopoverContent>
                 </Popover>
                 <div className="flex-1">
-                  {uploadedImage && <div className="mb-1 p-1 bg-muted/50 rounded-md border border-border max-w-32">
+                  <Textarea ref={textareaRef} placeholder="Type your message here..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[40px] max-h-[72px] resize-none overflow-y-auto scrollbar-hide border-border focus-visible:ring-0" disabled={isLoading} />
+                  {uploadedImage && <div className="mt-1 p-1 bg-muted/50 rounded-md border border-border max-w-32">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs text-muted-foreground">Image</span>
                         <Button variant="ghost" size="sm" onClick={() => setUploadedImage(null)} className="h-4 w-4 p-0 hover:bg-destructive/20">
@@ -584,7 +585,6 @@ const OpenAIChatbot = () => {
                       </div>
                       <img src={uploadedImage} alt="Uploaded preview" className="max-w-full h-12 rounded-sm object-contain" />
                     </div>}
-                  <Textarea ref={textareaRef} placeholder="Type your message here..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown} className="min-h-[40px] max-h-[72px] resize-none overflow-y-auto scrollbar-hide border-border focus-visible:ring-0" disabled={isLoading} />
                 </div>
                 <Button onClick={sendMessage} disabled={!input.trim() && !uploadedImage || isLoading} size="lg" className="h-[60px] px-6 bg-transparent hover:bg-transparent border-none shadow-none">
                   {isLoading ? <Loader2 className="h-8 w-8 animate-spin text-black dark:text-white" /> : <Send className="h-8 w-8 text-black dark:text-white" />}
