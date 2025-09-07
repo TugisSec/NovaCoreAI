@@ -142,7 +142,7 @@ const OpenAIChatbot = () => {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    setChatSessions(prev => [...prev, newSession]);
+    setChatSessions(prev => [newSession, ...prev]);
     setCurrentSessionId(newSession.id);
     setMessages(newSession.messages);
   };
