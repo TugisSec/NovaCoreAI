@@ -7,10 +7,23 @@ import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Settings, Send, Bot, User, Sparkles, Loader2, Sun, Moon, Image, X, Plus, Menu, Trash2, ChevronLeft, FileText } from 'lucide-react';
-// Force refresh to clear ImageIcon reference
+// Optimize icon imports - only import what we need
+import { 
+  Settings, 
+  Send, 
+  Bot, 
+  User, 
+  Loader2, 
+  Sun, 
+  Moon, 
+  Image, 
+  X, 
+  Plus, 
+  Menu, 
+  Trash2,
+  FileText 
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
 interface Message {
@@ -345,16 +358,27 @@ const OpenAIChatbot = () => {
       minute: '2-digit'
     });
   };
-  return <div className="h-screen flex bg-background transition-colors">
+  return (
+    <div className="h-screen flex bg-background transition-colors">
       {/* Sidebar - Chat History - Fixed */}
       <div className={`${sidebarCollapsed ? 'w-0 overflow-hidden' : 'w-80'} transition-all duration-300 border-r border-border bg-card flex flex-col fixed left-0 top-0 h-full z-40`}>
         {/* Sidebar Header */}
         <div className="px-4 py-8 border-b border-border bg-card h-20 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <img src="/lovable-uploads/bf2320b5-8643-4c03-8f78-b4949293424c.png" alt="Nova Core Logo" className="h-16 w-16" />
-            
+            <img 
+              src="/lovable-uploads/bf2320b5-8643-4c03-8f78-b4949293424c.png" 
+              alt="Nova Core Logo" 
+              className="h-16 w-16"
+              loading="lazy"
+            />
           </div>
-          <Button variant="ghost" size="sm" onClick={() => setSidebarCollapsed(true)} className="h-8 w-8 p-0 hover:bg-muted transition-colors" title="Close sidebar">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setSidebarCollapsed(true)} 
+            className="h-8 w-8 p-0 hover:bg-muted transition-colors" 
+            title="Close sidebar"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -593,19 +617,20 @@ const OpenAIChatbot = () => {
               
               {!apiKey && <div className="mt-3 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
                   <p className="text-sm text-destructive">
-                    Please set your OpenAI API key in settings to start chatting
-                  </p>
-                </div>}
-              
-              <div className="mt-3 text-center">
-                <p className="text-xs text-muted-foreground">
-                  Developed by Ninio • All rights reserved
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>;
-};
+                     Please set your OpenAI API key in settings to start chatting
+                   </p>
+                 </div>}
+               
+               <div className="mt-3 text-center">
+                 <p className="text-xs text-muted-foreground">
+                   Developed by Ninio • All rights reserved
+                 </p>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+     </div>
+   );
+ };
 export default OpenAIChatbot;
