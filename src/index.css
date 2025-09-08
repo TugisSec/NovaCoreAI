@@ -17,16 +17,16 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 15%;
 
-    --primary: 142 76% 36%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 142 16% 94%;
+    --secondary: 217 16% 94%;
     --secondary-foreground: 0 0% 15%;
 
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 142 43% 88%;
+    --accent: 217 43% 88%;
     --accent-foreground: 0 0% 15%;
 
     --destructive: 0 84% 60%;
@@ -34,17 +34,17 @@ All colors MUST be HSL.
 
     --border: 0 0% 90%;
     --input: 0 0% 94%;
-    --ring: 142 76% 36%;
+    --ring: 217 91% 60%;
 
     /* Messaging specific colors */
-    --chat-bg: 142 8% 96%;
-    --message-sent: 142 76% 36%;
+    --chat-bg: 217 8% 96%;
+    --message-sent: 217 91% 60%;
     --message-sent-foreground: 0 0% 100%;
     --message-received: 0 0% 100%;
     --message-received-foreground: 0 0% 15%;
     --online-indicator: 120 100% 35%;
     --sidebar-chat: 0 0% 100%;
-    --hover-chat: 142 16% 94%;
+    --hover-chat: 217 16% 94%;
 
     --radius: 0.5rem;
 
